@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt</title>
+    <style>
+        body { font-family: Arial; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid black; padding: 6px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h2>Hardware Shop Receipt</h2>
+    <p>Date: {{ sale.timestamp }}</p>
+    <p>Cashier: {{ sale.cashier.username }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>₱{{ item.price|floatformat:2 }}</td>
+                <td>₱{{ item.line_total|floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 40px;
+            background-color: #f9f9f9;
+        }
+        .receipt-box {
+            max-width: 700px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        .total {
+            text-align: right;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .btn {
+            background: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s ease;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="receipt-box">
+    <h2>Hardware Shop Receipt</h2>
+    <p><strong>Date:</strong> {{ sale.timestamp }}</p>
+    <p><strong>Cashier:</strong> {{ sale.cashier.username }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in receipt %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.qty }}</td>
+                <td>₱{{ item.unit|floatformat:2 }}</td>
+                <td>₱{{ item.total|floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="total"><strong>Total: ₱{{ total|floatformat:2 }}</strong></p>
+
+    <div class="button-container">
+        <a href="{% url 'generate_receipt_pdf' sale.id %}" class="btn" target="_blank">
+            📄 Download PDF
+        </a>
+    </div>
+</div>
+</body>
+</html>
+
+    <h3>Total: ₱{{ total }}</h3>
+</body>
+</html>

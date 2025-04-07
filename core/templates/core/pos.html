@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>POS - Cash Register</title>
+
+    <!-- ✅ Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        .form-row {
+            margin-bottom: 10px;
+        }
+        .item-total {
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+
+</head>
+<body>
+    <h2>Point of Sale - Cash Register</h2>
+
+    <form action="{% url 'pos_view' %}" method="post">
+        {% csrf_token %}
+    
+        {{ formset.management_form }}
+
+        <div id="form-list">
+            {% for form in formset %}
+            <div class="form-row">
+                <select name="form-{{ forloop.counter0 }}-product" class="product-select">
+                    {% for product in products %}
+                        <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="number" name="form-{{ forloop.counter0 }}-quantity" class="qty-input" min="1" value="1">
+                <span class="item-total">₱0.00</span>
+                <button type="button" onclick="removeForm(this)">Delete</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" onclick="addForm()">Add Item</button>
+        <button type="submit">Complete Sale</button>
+    </form>
+
+    <!-- 🔧 Hidden form template -->
+    <template id="empty-form-template">
+        <div class="form-row">
+            <select name="form-__prefix__-product" class="product-select">
+                {% for product in products %}
+                    <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="number" name="form-__prefix__-quantity" class="qty-input" min="1" value="1">
+            <span class="item-total">₱0.00</span>
+            <button type="button" onclick="removeForm(this)">Delete</button>
+        </div>
+    </template>
+
+    <!-- ✅ Payment Calculator -->
+    <div style="border: 2px solid #ccc; border-radius: 10px; padding: 20px; width: 300px; margin-top: 20px; box-shadow: 2px 2px 10px #aaa;">
+        <h3>Payment Calculator</h3>
+        <label>Total Price:</label><br>
+        <input type="text" id="total_price" readonly class="form-control"><br>
+
+        <label>Customer Payment:</label><br>
+        <input type="number" id="customer_payment" class="form-control"><br>
+
+        <label>Change:</label><br>
+        <input type="text" id="change_output" readonly class="form-control"><br><br>
+
+        <button type="button" onclick="calculateChange()" class="btn btn-primary">Calculate Change</button>
+    </div>
+
+    <!-- ✅ Receipt Display Area -->
+    <div id="receipt" style="margin-top: 30px; padding: 20px; border: 1px solid #000;"></div>
+    <button onclick="printReceipt()">Print / Save as PDF</button>
+
+    <!-- ✅ Reset Button -->
+    <button type="button" onclick="resetForm()">Reset</button>
+
+    <!-- ✅ Select2 JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.product-select').select2();
+        });
+
+        function addForm() {
+            const formCount = document.getElementById('id_form-TOTAL_FORMS');
+            const currentFormCount = parseInt(formCount.value);
+            const newForm = document.getElementById('empty-form-template').innerHTML.replace(/__prefix__/g, currentFormCount);
+            document.getElementById('form-list').insertAdjacentHTML('beforeend', newForm);
+            formCount.value = currentFormCount + 1;
+
+            $('.product-select').last().select2(); // reinitialize
+        }
+
+        function removeForm(button) {
+            const row = button.closest('.form-row');
+            row.remove();
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            const productSelects = document.querySelectorAll('.product-select');
+            const qtyInputs = document.querySelectorAll('.qty-input');
+
+            productSelects.forEach((select, index) => {
+                const selectedOption = select.options[select.selectedIndex];
+                const price = parseFloat(selectedOption.dataset.price) || 0;
+                const qty = parseInt(qtyInputs[index].value) || 0;
+                const itemTotal = price * qty;
+                total += itemTotal;
+
+                const row = select.closest('.form-row');
+                const itemTotalSpan = row.querySelector('.item-total');
+                if (itemTotalSpan) itemTotalSpan.innerText = `₱${itemTotal.toFixed(2)}`;
+            });
+
+            document.getElementById('total_price').value = total.toFixed(2);
+            return total;
+        }
+
+        function calculateChange() {
+            const total = calculateTotal();
+            const payment = parseFloat(document.getElementById('customer_payment').value) || 0;
+            const change = payment - total;
+
+            if (change < 0) {
+                alert("Payment is less than total amount!");
+                document.getElementById('change_output').value = "Insufficient";
+            } else {
+                document.getElementById('change_output').value = change.toFixed(2);
+            }
+
+            showReceipt(total, payment, change);
+        }
+
+        function showReceipt(total, payment, change) {
+            const receipt = document.getElementById("receipt");
+            let html = "<h3>Receipt</h3><ul>";
+
+            const selects = document.querySelectorAll('.product-select');
+            const qtys = document.querySelectorAll('.qty-input');
+
+            selects.forEach((select, index) => {
+                const name = select.options[select.selectedIndex].text;
+                const price = parseFloat(select.options[select.selectedIndex].dataset.price) || 0;
+                const qty = parseInt(qtys[index].value) || 0;
+                const subtotal = qty * price;
+                html += `<li>${name} x${qty} - ₱${subtotal.toFixed(2)}</li>`;
+            });
+
+            html += `</ul><p><strong>Total:</strong> ₱${total.toFixed(2)}<br><strong>Payment:</strong> ₱${payment}<br><strong>Change:</strong> ₱${change.toFixed(2)}</p>`;
+            receipt.innerHTML = html;
+        }
+
+        function printReceipt() {
+            const printContents = document.getElementById('receipt').innerHTML;
+            const originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
+
+        function resetForm() {
+            document.querySelectorAll('.form-row').forEach((row, index) => {
+                if (index !== 0) row.remove();  // keep the first row
+            });
+
+            document.querySelector('.product-select').selectedIndex = 0;
+            document.querySelector('.qty-input').value = 1;
+            document.getElementById('total_price').value = '';
+            document.getElementById('customer_payment').value = '';
+            document.getElementById('change_output').value = '';
+            document.getElementById('receipt').innerHTML = '';
+        }
+
+        document.addEventListener('input', function () {
+            calculateTotal();
+        });
+    </script>
+    
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+</form>
+
+</body>
+</html>
