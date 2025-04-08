@@ -219,9 +219,12 @@
         });
     </script>
     
-<form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit">Logout</button>
+    <form method="POST" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">🚪 Log Out</button>
+    </form>
+    
+
 </form>
 
 </body>
