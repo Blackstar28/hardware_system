@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Deliveries</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Purchase Order</th>
+        <th>Delivery Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for delivery in deliveries %}
+      <tr>
+        <td>{{ delivery.id }}</td>
+        <td>{{ delivery.purchase_order }}</td>
+        <td>{{ delivery.delivery_date }}</td>
+        <td>{{ delivery.status }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

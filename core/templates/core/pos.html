@@ -43,7 +43,39 @@
 
         <button type="button" onclick="addForm()">Add Item</button>
         <button type="submit">Complete Sale</button>
+        {% csrf_token %}
     </form>
+
+    <h3 class="text-xl font-bold mb-2">📦 Product List</h3>
+<input type="text" id="productSearch" placeholder="Search products..." class="border p-1 w-full mb-3">
+
+<table class="w-full table-auto border">
+  <thead class="bg-gray-200">
+    <tr>
+      <th class="border px-2 py-1">Name</th>
+      <th class="border px-2 py-1">Stock</th>
+      <th class="border px-2 py-1">Price</th>
+    </tr>
+  </thead>
+  <tbody id="productTable">
+    {% for product in products %}
+      <tr>
+        <td class="border px-2 py-1">{{ product.name }}</td>
+        <td class="border px-2 py-1">{{ product.stock }}</td>
+        <td class="border px-2 py-1">₱{{ product.price }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script>
+    document.getElementById("productSearch").addEventListener("keyup", function() {
+      const query = this.value.toLowerCase();
+      document.querySelectorAll("#productTable tr").forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
+      });
+    });
+    </script>
 
     <!-- 🔧 Hidden form template -->
     <template id="empty-form-template">

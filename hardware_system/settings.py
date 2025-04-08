@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'crispy_forms',
+    'crispy_bootstrap5',
     
 ]
 
@@ -131,7 +133,7 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Telegram settings
 TELEGRAM_BOT_TOKEN = '7994933931:AAHRzdRiDUa-DroW8JCGFy-gOmWr2lJfRRw'
-TELEGRAM_CHAT_ID = '398718055'
+TELEGRAM_CHAT_ID = '6587625714'
 
 # Email settings (update according to your email backend)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -141,3 +143,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'ajkleinf@gmail.com'
 EMAIL_HOST_PASSWORD = 'aqun smom rjfp actn'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+NOTIFICATION_EMAIL = 'ajkleinf@gmail.com'
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

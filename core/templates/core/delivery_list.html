@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Deliveries</h2>
+
+  <form method="get" class="row g-3 mb-3">
+    <div class="col-md-4">
+      <input type="text" name="search" class="form-control" placeholder="Search by supplier or PO ID" value="{{ search_query }}">
+    </div>
+    <div class="col-md-3">
+      <select name="status" class="form-select">
+        <option value="">All Statuses</option>
+        <option value="delivered" {% if status_filter == 'delivered' %}selected{% endif %}>Delivered</option>
+        <option value="not_delivered" {% if status_filter == 'not_delivered' %}selected{% endif %}>Not Delivered</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="sort" class="form-select">
+        <option value="delivery_date" {% if sort_by == 'delivery_date' %}selected{% endif %}>Sort by Date ↑</option>
+        <option value="-delivery_date" {% if sort_by == '-delivery_date' %}selected{% endif %}>Sort by Date ↓</option>
+
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Apply</button>
+    </div>
+  </form>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>PO ID</th>
+        <th>Supplier</th>
+        <th>Status</th>
+        <th>Date Delivered</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for delivery in deliveries %}
+      <tr>
+        <td>{{ delivery.purchase_order.id }}</td>
+        <td>{{ delivery.purchase_order.supplier.name }}</td>
+        <td>
+          {% if delivery.delivered %}
+            <span class="badge bg-success">Delivered</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">Not Delivered</span>
+          {% endif %}
+        </td>
+        <td>{{ delivery.delivery_date|date:"Y-m-d" }}</td>
+        <td>
+          {% if delivery.delivered %}
+            <a href="{% url 'undo_delivery' delivery.id %}" class="btn btn-sm btn-outline-secondary">Undo</a>
+          {% else %}
+            <a href="{% url 'mark_as_delivered' delivery.id %}" class="btn btn-sm btn-success">Mark as Delivered</a>
+          {% endif %}
+          
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center">No deliveries found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if deliveries.has_other_pages %}
+  <nav>
+    <ul class="pagination">
+      {% if deliveries.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ deliveries.previous_page_number }}">Previous</a></li>
+      {% endif %}
+      <li class="page-item active"><span class="page-link">{{ deliveries.number }}</span></li>
+      {% if deliveries.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ deliveries.next_page_number }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

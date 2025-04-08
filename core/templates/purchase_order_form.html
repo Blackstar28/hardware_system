@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Create Purchase Order</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {{ formset.management_form }}
+
+  {% for item_form in formset %}
+    <div class="border p-2 mb-2">
+      {{ item_form.as_p }}
+    </div>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

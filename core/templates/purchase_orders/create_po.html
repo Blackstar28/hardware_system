@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Create Purchase Order</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ po_form.as_p }}
+        </div>
+
+        <h4>Order Items</h4>
+        {{ formset.management_form }}
+        <div id="items">
+            {% for form in formset %}
+                <div class="card mb-3 p-3">
+                    {{ form.as_p }}
+                </div>
+            {% endfor %}
+        </div>
+        <div id="items-container">
+            <div class="item-form row">
+              <input type="text" name="product[]" placeholder="Product" class="form-control col">
+              <input type="number" name="quantity[]" placeholder="Qty" class="form-control col">
+              <input type="number" name="price[]" placeholder="Unit Price" class="form-control col">
+              <button type="button" class="btn btn-danger remove-item">✕</button>
+            </div>
+          </div>
+          
+          <button type="button" id="add-item" class="btn btn-secondary mt-2">Add Item</button>
+          
+        <button type="submit" class="btn btn-primary">Submit PO</button>
+    </form>
+</div>
+{% endblock %}
+
+<script>
+    document.getElementById('add-item').addEventListener('click', function () {
+      const container = document.getElementById('items-container');
+      const newItem = container.firstElementChild.cloneNode(true);
+      newItem.querySelectorAll('input').forEach(input => input.value = '');
+      container.appendChild(newItem);
+    });
+  
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('remove-item')) {
+        const items = document.querySelectorAll('.item-form');
+        if (items.length > 1) e.target.closest('.item-form').remove();
+      }
+    });
+  </script>
+  
+
+  
+
