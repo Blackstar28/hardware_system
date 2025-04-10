@@ -10,3 +10,4 @@ whitenoise==6.9.0
 django-crispy-forms==2.1
 crispy-bootstrap5==0.7
 pdfkit==1.0.0
+requests==2.31.0
