@@ -9,3 +9,4 @@ tzdata==2025.2
 whitenoise==6.9.0
 django-crispy-forms==2.1
 crispy-bootstrap5==0.7
+pdfkit==1.0.0
