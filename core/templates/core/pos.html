@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>POS - Cash Register</title>
-    <!-- ✅ Bootstrap & Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
@@ -13,7 +12,6 @@
 </head>
 <body>
 
-<!-- ✅ Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container-fluid">
         <span class="navbar-brand">Hardware POS</span>
@@ -55,8 +53,23 @@
         </div>
     </form>
 
+    <!-- ✅ Gross, Discount, Tax, Net -->
+    <div class="mt-4 p-3 bg-light border rounded" style="max-width: 500px;">
+        <h5>📊 Totals</h5>
+        <div class="mb-2"><strong>Gross Total:</strong> ₱<span id="gross-total">0.00</span></div>
+        <div class="mb-2">
+            <label for="discount"><strong>Discount:</strong></label>
+            <input type="number" id="discount" value="0" class="form-control" onchange="calculateTotal()">
+        </div>
+        <div class="mb-2">
+            <label for="tax"><strong>Tax:</strong></label>
+            <input type="number" id="tax" value="0" class="form-control" onchange="calculateTotal()">
+        </div>
+        <div class="mb-2"><strong>Net Total:</strong> ₱<span id="net-total">0.00</span></div>
+    </div>
+
     <!-- ✅ Calculator -->
-    <div class="mt-5 p-4 border rounded shadow-sm bg-light" style="max-width: 400px;">
+    <div class="mt-4 p-4 border rounded shadow-sm bg-light" style="max-width: 400px;">
         <h4>🧮 Payment Calculator</h4>
         <label>Total Price:</label>
         <input type="text" id="total_price" readonly class="form-control mb-2">
@@ -130,25 +143,33 @@
     }
 
     function calculateTotal() {
-        let total = 0;
+        let gross = 0;
         document.querySelectorAll('.form-row').forEach(row => {
             const select = row.querySelector('.product-select');
             const qty = row.querySelector('.qty-input').value || 0;
             const price = select.options[select.selectedIndex].dataset.price || 0;
             const lineTotal = parseFloat(qty) * parseFloat(price);
-            total += lineTotal;
+            gross += lineTotal;
             row.querySelector('.item-total').innerText = `₱${lineTotal.toFixed(2)}`;
         });
-        document.getElementById('total_price').value = total.toFixed(2);
-        return total;
+
+        const discount = parseFloat(document.getElementById('discount').value) || 0;
+        const tax = parseFloat(document.getElementById('tax').value) || 0;
+        const net = gross - discount + tax;
+
+        document.getElementById('total_price').value = net.toFixed(2);
+        document.getElementById('gross-total').innerText = gross.toFixed(2);
+        document.getElementById('net-total').innerText = net.toFixed(2);
+
+        return net;
     }
 
     function calculateChange() {
-        const total = calculateTotal();
+        const net = calculateTotal();
         const payment = parseFloat(document.getElementById('customer_payment').value) || 0;
-        const change = payment - total;
+        const change = payment - net;
         document.getElementById('change_output').value = change < 0 ? "Insufficient" : change.toFixed(2);
-        showReceipt(total, payment, change);
+        showReceipt(net, payment, change);
     }
 
     function showReceipt(total, payment, change) {
@@ -159,7 +180,15 @@
             const price = row.querySelector('.product-select').selectedOptions[0].dataset.price;
             html += `<li>${name} x${qty} - ₱${(qty * price).toFixed(2)}</li>`;
         });
-        html += `</ul><p><strong>Total:</strong> ₱${total.toFixed(2)}<br><strong>Payment:</strong> ₱${payment}<br><strong>Change:</strong> ₱${change.toFixed(2)}</p>`;
+        html += `</ul>
+            <p>
+                <strong>Gross:</strong> ₱${document.getElementById('gross-total').innerText}<br>
+                <strong>Discount:</strong> ₱${document.getElementById('discount').value}<br>
+                <strong>Tax:</strong> ₱${document.getElementById('tax').value}<br>
+                <strong>Net Total:</strong> ₱${total.toFixed(2)}<br>
+                <strong>Payment:</strong> ₱${payment}<br>
+                <strong>Change:</strong> ₱${change < 0 ? "Insufficient" : change.toFixed(2)}
+            </p>`;
         document.getElementById("receipt").innerHTML = html;
     }
 
@@ -176,9 +205,13 @@
     function resetForm() {
         document.querySelectorAll('.form-row').forEach((row, i) => { if (i > 0) row.remove(); });
         document.querySelector('.qty-input').value = 1;
+        document.getElementById('discount').value = 0;
+        document.getElementById('tax').value = 0;
         document.getElementById('total_price').value = '';
         document.getElementById('customer_payment').value = '';
         document.getElementById('change_output').value = '';
+        document.getElementById('gross-total').innerText = '0.00';
+        document.getElementById('net-total').innerText = '0.00';
         document.getElementById('receipt').innerHTML = '';
         calculateTotal();
     }
