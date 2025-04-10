@@ -10,7 +10,7 @@ import pdfkit
 from django.core.mail import send_mail
 from core.utils import send_telegram_message
 from django.db.models import F
-from .models import PurchaseOrder, PurchaseOrderItem
+from .models import PurchaseOrder, PurchaseOrderItem, Product
 from .forms import PurchaseOrderForm, POItemFormSet
 from .forms import PurchaseOrderForm, PurchaseOrderItemFormSet
 from django.db.models import Q
@@ -24,7 +24,8 @@ from core.models import Product
 from django.conf import settings
 from django.http import HttpResponse
 import requests
-
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 
 def purchase_order_list(request):
     return render(request, 'core/purchase_order_list.html', {})
@@ -152,24 +153,24 @@ check_and_notify_low_stock()
 
 def create_purchase_order(request):
     if request.method == 'POST':
-        po_form = PurchaseOrderForm(request.POST)
-        formset = POItemFormSet(request.POST)
-
-        if po_form.is_valid() and formset.is_valid():
-            po = po_form.save()
-            po_items = formset.save(commit=False)
-            for item in po_items:
-                item.po = po
-                item.save()
-            formset.save_m2m()
-            return redirect('purchase_order_list')  # Change to your actual success URL
+        form = PurchaseOrderForm(request.POST)
+        formset = PurchaseOrderItemFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
+            po = form.save()
+            items = formset.save(commit=False)
+            for item in items:
+                if item.product and item.quantity:
+                    item.purchase_order = po
+                    item.save()
+            messages.success(request, "✅ Purchase order created successfully.")
+            return redirect('create_purchase_order')
     else:
-        po_form = PurchaseOrderForm()
-        formset = POItemFormSet()
+        form = PurchaseOrderForm()
+        formset = PurchaseOrderItemFormSet(queryset=PurchaseOrderItem.objects.none())
 
-    return render(request, 'purchase_orders/create_po.html', {
-        'po_form': po_form,
-        'formset': formset,
+    return render(request, 'core/create_purchase_order.html', {
+        'form': form,
+        'formset': formset
     })
 
 
@@ -351,3 +352,20 @@ def test_telegram(request):
         return HttpResponse("Telegram sent!")
     except Exception as e:
         return HttpResponse(f"Telegram FAILED: {e}")
+    
+@require_GET
+def get_product_price(request):
+    product_id = request.GET.get('product_id')
+    try:
+        product = Product.objects.get(pk=product_id)
+        return JsonResponse({'price': product.price})
+    except Product.DoesNotExist:
+        return JsonResponse({'price': 0})
+    
+def get_product_price(request):
+    product_id = request.GET.get('product_id')
+    try:
+        product = Product.objects.get(id=product_id)
+        return JsonResponse({'price': product.price})
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Product not found'}, status=404)

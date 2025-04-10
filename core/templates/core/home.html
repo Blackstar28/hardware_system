@@ -6,32 +6,64 @@
     
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     {% block extra_head %}{% endblock %}
+
     <style>
         body {
-            padding: 40px;
             background-color: #f8f9fa;
             font-family: 'Segoe UI', sans-serif;
         }
+        .container-buttons {
+            text-align: center;
+            padding: 50px 20px;
+        }
         .btn {
             margin: 10px;
-            min-width: 200px;
-        }
-        .container {
-            text-align: center;
-            margin-top: 50px;
+            min-width: 220px;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1 class="mb-4">🏪 Welcome to the Hardware Shop System</h1>
 
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">🛠 Hardware System</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'pos_view' %}">POS (Cashier)</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'create_purchase_order' %}">Create PO</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/deliveries/" target="_blank">Deliveries</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/admin/login/?next=/admin/" target="_blank">Admin</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container-buttons">
+    <h1 class="mb-4">Welcome to the Hardware Shop System</h1>
+    
     <a href="{% url 'pos_view' %}" class="btn btn-primary">💳 Go to POS (Cashier)</a>
     <a href="{% url 'create_purchase_order' %}" class="btn btn-success">🧾 Create Purchase Order</a>
     <a href="http://127.0.0.1:8000/admin/login/?next=/admin/" target="_blank" class="btn btn-dark">🔐 Admin Login</a>
     <a href="http://127.0.0.1:8000/deliveries/" target="_blank" class="btn btn-info">📦 View Deliveries</a>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
