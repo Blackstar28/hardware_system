@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Total Sales Today</h1>
+
+<table class="table table-bordered">
+    <tr><th>Gross Total</th><td>₱{{ gross_total|floatformat:2 }}</td></tr>
+    <tr><th>Discounted Total (after 5%)</th><td>₱{{ discounted_total|floatformat:2 }}</td></tr>
+    <tr><th>Net Total (after 12% tax)</th><td>₱{{ net_total|floatformat:2 }}</td></tr>
+</table>
+
+<a href="?reset=true" class="button btn btn-danger" style="margin-top: 20px;">Reset Today's Sales</a>
+
+<h2 style="margin-top: 30px;">Sales Breakdown</h2>
+<ul>
+    {% for sale in sales %}
+        <li>Sale #{{ sale.id }} - ₱{{ sale.total }} - by {{ sale.cashier }}</li>
+    {% empty %}
+        <li>No sales yet today.</li>
+    {% endfor %}
+</ul>
+
+<a href="/admin/" class="button btn btn-secondary" style="margin-top: 30px;">Back to Admin</a>
+{% endblock %}
