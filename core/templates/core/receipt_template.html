@@ -22,9 +22,13 @@
             text-align: center;
             margin-bottom: 20px;
         }
+        p {
+            margin: 5px 0;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
         }
         table th, table td {
             border: 1px solid #ccc;
@@ -34,7 +38,7 @@
         .total {
             text-align: right;
             font-size: 1.2em;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         .button-container {
             text-align: center;
@@ -47,66 +51,40 @@
             text-decoration: none;
             border-radius: 6px;
             transition: background 0.3s ease;
+            margin: 5px;
         }
         .btn:hover {
             background: #0056b3;
+        }
+        @media print {
+            .button-container {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
 <div class="receipt-box">
-    <h2>Hardware Shop Receipt</h2>
-    <p><strong>Date:</strong> {{ sale.timestamp }}</p>
+    <!-- Shop Info -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="{% static 'img/logo.png' %}" alt="Shop Logo" height="80"><br>
+        <strong>Daddy Dados Hardware Supplies</strong><br>
+        Silcas Rd. Binan , Laguna, Philippines 4022<br>
+        📞 (02) 123-4567
+    </div>
+
+    <h2>🧾 Hardware Shop Receipt</h2>
+
+    <p><strong>Date:</strong> {{ sale.timestamp|date:"F j, Y, g:i a" }}</p>
     <p><strong>Cashier:</strong> {{ sale.cashier.username }}</p>
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Receipt PDF</title>
-        <style>
-            body { font-family: Arial, sans-serif; font-size: 14px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #000; padding: 6px; text-align: left; }
-            h2 { text-align: center; }
-        </style>
-    </head>
-    <body>
-        <h2>Hardware Shop Receipt</h2>
-        <p>Date: {{ sale.timestamp }}</p>
-        <p>Cashier: {{ sale.cashier.username }}</p>
-    
-        <table>
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Qty</th>
-                    <th>Unit Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for item in receipt %}
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.qty }}</td>
-                    <td>₱{{ item.unit }}</td>
-                    <td>₱{{ item.total }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    
-        <h3 style="text-align:right;">Total: ₱{{ total }}</h3>
-    </body>
-    </html>
-    
+
     <table>
         <thead>
             <tr>
                 <th>Item</th>
                 <th>Qty</th>
                 <th>Unit Price</th>
-                <th>Total</th>
+                <th>Line Total</th>
             </tr>
         </thead>
         <tbody>
@@ -121,11 +99,19 @@
         </tbody>
     </table>
 
-    <p class="total"><strong>Total: ₱{{ total|floatformat:2 }}</strong></p>
+    <!-- Totals -->
+    <p class="total"><strong>Subtotal: ₱{{ subtotal|floatformat:2 }}</strong></p>
+    <p class="total"><strong>Discount: ₱{{ discount|floatformat:2 }}</strong></p>
+    <p class="total"><strong>Tax: ₱{{ tax|floatformat:2 }}</strong></p>
+    <p class="total"><strong><u>Net Total: ₱{{ net_total|floatformat:2 }}</u></strong></p>
 
+    <!-- Buttons -->
     <div class="button-container">
         <a href="{% url 'generate_receipt_pdf' sale.id %}" class="btn" target="_blank">
             📄 Download PDF
+        </a>
+        <a href="#" class="btn" onclick="window.print()">
+            🖨️ Print Receipt
         </a>
     </div>
 </div>
