@@ -25,6 +25,8 @@ from django.conf import settings
 from django.http import HttpResponse
 import requests
 from django.http import JsonResponse
+from weasyprint import HTML
+import tempfile
 from django.views.decorators.http import require_GET
 
 def purchase_order_list(request):
@@ -42,12 +44,12 @@ def is_cashier(user):
     return user.groups.filter(name='Cashier').exists() or user.is_superuser
 
 # Generate PDF Receipt
-# Generate PDF Receipt
+# Generate PDF Receipt using WeasyPrint
 def generate_receipt_pdf(request, sale_id):
-    sale = Sale.objects.get(id=sale_id)
+    sale = get_object_or_404(Sale, id=sale_id)
     items = SaleItem.objects.filter(sale=sale)
 
-    # Build the receipt data with pre-calculated line totals
+    # Prepare receipt details
     receipt = []
     for item in items:
         receipt.append({
@@ -57,19 +59,20 @@ def generate_receipt_pdf(request, sale_id):
             'line_total': item.quantity * item.price
         })
 
-    path_to_wkhtmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-    config = pdfkit.configuration(wkhtmltopdf=path_to_wkhtmltopdf)
-
-    html = render_to_string("core/receipt_template.html", {
+    html_string = render_to_string("core/receipt_template.html", {
         'sale': sale,
         'items': receipt,
         'total': sale.total,
     })
-    pdf = pdfkit.from_string(html, False, configuration=config)
 
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="receipt_{sale.id}.pdf"'
-    return response
+    with tempfile.NamedTemporaryFile(delete=True) as output:
+        HTML(string=html_string).write_pdf(output.name)
+        output.seek(0)
+        response = HttpResponse(output.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="receipt_{sale.id}.pdf"'
+        return response
+
+
 
 
 # POS View

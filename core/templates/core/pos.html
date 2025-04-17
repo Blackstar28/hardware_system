@@ -51,6 +51,7 @@
         <div class="mt-3">
             <button type="button" class="btn btn-secondary" onclick="addForm()">➕ Add Item</button>
             <button type="submit" class="btn btn-success">💰 Complete Sale</button>
+            <div id="sale-message" style="display: none;" class="alert alert-success text-center mt-3"></div>
             <button type="button" class="btn btn-warning" onclick="resetForm()">🔄 Reset</button>
         </div>
     </form>
@@ -226,6 +227,22 @@
         });
     });
 </script>
+<script>
+    document.getElementById('complete-sale-btn').addEventListener('click', function () {
+        const messageBox = document.getElementById('sale-message');
+        messageBox.textContent = "✅ Sale completed!";
+        messageBox.style.display = "block";
+    
+        // Optionally scroll to message
+        messageBox.scrollIntoView({ behavior: 'smooth' });
+    
+        // Wait 2 seconds then reload the page
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    });
+    </script>
+    
 
 </body>
 </html>
