@@ -82,7 +82,28 @@
             <button type="submit" class="btn btn-success" id="complete-sale-btn">💰 Complete Sale</button>
             <div id="sale-message" style="display: none;" class="alert alert-success text-center mt-3"></div>
             <button type="button" class="btn btn-warning" onclick="resetForm()">🔄 Reset</button>
+
         </div>
+        <script>
+  document.getElementById("completeSaleBtn").addEventListener("click", function (event) {
+    let valid = true;
+    document.querySelectorAll(".product-row").forEach(function (row) {
+      const product = row.querySelector(".product-select");
+      const qty = row.querySelector(".quantity-input");
+
+      if ((product && product.value === "") || (qty && qty.value === "")) {
+        valid = false;
+      }
+    });
+
+    if (!valid) {
+      alert("Please fill all product and quantity fields before completing the sale.");
+      event.preventDefault();
+    } else {
+      document.getElementById("salesForm").submit();  // or just allow the form to submit naturally
+    }
+  });
+</script>
     </form>
 
     <!-- ✅ Gross, Discount, Tax, Net -->
@@ -248,6 +269,7 @@
     }
 
     document.addEventListener('input', calculateTotal);
+
     document.getElementById("productSearch").addEventListener("keyup", function () {
         const query = this.value.toLowerCase();
         document.querySelectorAll("#productTable tr").forEach(row => {
@@ -255,14 +277,30 @@
         });
     });
 
-    document.getElementById('complete-sale-btn').addEventListener('click', function () {
-        const messageBox = document.getElementById('sale-message');
-        messageBox.textContent = "✅ Sale completed!";
-        messageBox.style.display = "block";
-        messageBox.scrollIntoView({ behavior: 'smooth' });
-        setTimeout(() => {
-            location.reload();
-        }, 2000);
+    // ✅ Validate all fields before submitting the form
+    document.getElementById('complete-sale-btn').addEventListener('click', function (event) {
+        let valid = true;
+        const rows = document.querySelectorAll('.form-row');
+
+        rows.forEach(row => {
+            const product = row.querySelector('.product-select');
+            const qty = row.querySelector('.qty-input');
+
+            if (!product.value || qty.value === '' || parseInt(qty.value) <= 0) {
+                valid = false;
+            }
+        });
+
+        if (!valid) {
+            event.preventDefault();
+            alert("❗ Please fill in all product and quantity fields correctly before completing the sale.");
+        } else {
+            const messageBox = document.getElementById('sale-message');
+            messageBox.textContent = "✅ Sale completed!";
+            messageBox.style.display = "block";
+            messageBox.scrollIntoView({ behavior: 'smooth' });
+            // Let the form submit naturally
+        }
     });
 </script>
 
