@@ -28,6 +28,7 @@ from django.http import JsonResponse
 from weasyprint import HTML
 import tempfile
 from django.views.decorators.http import require_GET
+from decimal import Decimal
 
 def purchase_order_list(request):
     return render(request, 'core/purchase_order_list.html', {})
@@ -87,75 +88,86 @@ def generate_receipt_pdf(request, sale_id):
 
 
 
-# POS View
 @user_passes_test(is_cashier)
 @login_required
 def pos_view(request):
     formset = POSFormSet(request.POST or None)
 
-    if request.method == 'POST' and formset.is_valid():
-        sale = Sale.objects.create(cashier=request.user, total=0)
-        total = 0
-        receipt = []
+    if request.method == 'POST':
+        try:
+            if formset.is_valid():
+                sale = Sale.objects.create(cashier=request.user, total=0)
+                total = 0
+                receipt = []
 
-        for form in formset:
-            if form.cleaned_data and not form.cleaned_data.get('DELETE'):
-                product = form.cleaned_data['product']
-                quantity = form.cleaned_data['quantity']
+                for form in formset:
+                    if form.cleaned_data and not form.cleaned_data.get('DELETE'):
+                        product = form.cleaned_data.get('product')
+                        quantity = form.cleaned_data.get('quantity')
 
-                if product.stock >= quantity:
-                    SaleItem.objects.create(
-                        sale=sale,
-                        product=product,
-                        quantity=quantity,
-                        price=product.price
-                    )
-                    product.stock -= quantity
-                    product.save()
-                    notify_low_stock(product)
+                        if not product or not quantity:
+                            continue
 
-                    line_total = product.price * quantity
-                    total += line_total
-                    receipt.append({
-                        'name': product.name,
-                        'qty': quantity,
-                        'unit': product.price,
-                        'total': line_total
-                    })
-                else:
-                    messages.error(request, f"Not enough stock for {product.name}")
-                    sale.delete()
-                    return redirect('pos_view')
+                        if product.stock >= quantity:
+                            SaleItem.objects.create(
+                                sale=sale,
+                                product=product,
+                                quantity=quantity,
+                                price=product.price
+                            )
+                            product.stock -= quantity
+                            product.save()
+                            notify_low_stock(product)
 
-        sale.total = total
-        sale.save()
+                            line_total = product.price * quantity
+                            total += line_total
+                            receipt.append({
+                                'name': product.name,
+                                'qty': quantity,
+                                'unit': product.price,
+                                'total': line_total
+                            })
+                        else:
+                            messages.error(request, f"❌ Not enough stock for {product.name}")
+                            sale.delete()
+                            return redirect('pos_view')
 
-        # Option 1: Redirect to PDF directly
-        # Show HTML receipt page with buttons
-        return render(request, 'core/receipt.html', {
-        'sale': sale,
-        'receipt': receipt,
-        'gross_total': total,
-        'discount_percent': 10,
-        'discount_amount': total * 0.10,
-        'tax_percent': 12,
-        'tax_amount': (total - (total * 0.10)) * 0.12,
-        'net_total': (total - (total * 0.10)) + ((total - (total * 0.10)) * 0.12),
-})
+                sale.total = total
+                sale.save()
 
+                discount_percent = Decimal("0.10")
+                tax_percent = Decimal("0.12")
 
-        # Option 2 (if using receipt.html):
-        # return render(request, 'core/receipt.html', {
-        #     'sale': sale,
-        #     'receipt': receipt,
-        #     'total': total,
-        # })
+                discount_amount = total * discount_percent
+                taxable_total = total - discount_amount
+                tax_amount = taxable_total * tax_percent
+                net_total = taxable_total + tax_amount
+
+                return render(request, 'core/receipt.html', {
+            'sale': sale,
+            'receipt': receipt,
+            'gross_total': total,
+            'discount_percent': int(discount_percent * 100),
+            'discount_amount': discount_amount,
+            'tax_percent': int(tax_percent * 100),
+            'tax_amount': tax_amount,
+            'net_total': net_total,
+    })
+            else:
+                print("🛑 Formset is invalid:")
+                print(formset.errors)
+                messages.error(request, "Invalid form data submitted.")
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return HttpResponse(f"<h2>🔥 Server Error</h2><pre>{str(e)}</pre>", status=500)
 
     return render(request, 'core/pos.html', {
         'formset': formset,
         'products': Product.objects.all(),
         'empty_form': formset.empty_form,
     })
+
 
 def check_and_notify_low_stock():
     low_stock_products = Product.objects.filter(stock__lte=F('low_stock_threshold'))
