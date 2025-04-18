@@ -55,9 +55,8 @@
 </head>
 <body>
 <div class="receipt-box">
-    <h2>Hardware Shop Receipt</h2>
-    <p><strong>Date:</strong> {{ sale.timestamp }}</p>
-    <p><strong>Cashier:</strong> {{ sale.cashier.username }}</p>
+    <h2>AM Hardware Shop Receipt</h2>
+
     <!DOCTYPE html>
     <html>
     <head>
@@ -71,33 +70,35 @@
         </style>
     </head>
     <body>
-        <h2>Hardware Shop Receipt</h2>
-        <p>Receipt ID: {{ sale.id }}</p>
-        <p>Date: {{ sale.timestamp|date:"F j, Y, g:i a"  }}</p>
-        <p>Cashier: {{ sale.cashier.username }}</p>
-    
-        <table>
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Qty</th>
-                    <th>Unit Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for item in receipt %}
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.qty }}</td>
-                    <td>₱{{ item.unit }}</td>
-                    <td>₱{{ item.total }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    
-        <h3 style="text-align:right;">Total: ₱{{ total }}</h3>
+        <div class="receipt-box">
+            <h2>AM Hardware Shop Receipt</h2>
+            <p><strong>Date:</strong> {{ sale.timestamp }}</p>
+            <p><strong>Cashier:</strong> {{ sale.cashier.username }}</p>
+        
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in receipt %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.qty }}</td>
+                        <td>₱{{ item.unit|floatformat:2 }}</td>
+                        <td>₱{{ item.total|floatformat:2 }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        
+            <p class="total"><strong>Total: ₱{{ total|floatformat:2 }}</strong></p>
+
+        </div>
     </body>
     </html>
 
