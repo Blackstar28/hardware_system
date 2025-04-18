@@ -49,28 +49,40 @@ def generate_receipt_pdf(request, sale_id):
     sale = get_object_or_404(Sale, id=sale_id)
     items = SaleItem.objects.filter(sale=sale)
 
-    # Prepare receipt details
     receipt = []
+    gross_total = 0
+
     for item in items:
+        line_total = item.quantity * item.price
         receipt.append({
             'name': item.product.name,
-            'quantity': item.quantity,
-            'price': item.price,
-            'line_total': item.quantity * item.price
+            'qty': item.quantity,
+            'unit': item.price,
+            'total': line_total
         })
+        gross_total += line_total
 
-    html_string = render_to_string("core/receipt_template.html", {
+    discount_percent = 10  # example
+    tax_percent = 12       # example
+    discount_amount = gross_total * (discount_percent / 100)
+    tax_amount = (gross_total - discount_amount) * (tax_percent / 100)
+    net_total = (gross_total - discount_amount) + tax_amount
+
+    html_string = render_to_string("core/receipt.html", {
         'sale': sale,
-        'items': receipt,
-        'total': sale.total,
+        'receipt': receipt,
+        'gross_total': gross_total,
+        'discount_percent': discount_percent,
+        'discount_amount': discount_amount,
+        'tax_percent': tax_percent,
+        'tax_amount': tax_amount,
+        'net_total': net_total,
     })
 
     with tempfile.NamedTemporaryFile(delete=True) as output:
         HTML(string=html_string).write_pdf(output.name)
         output.seek(0)
-        response = HttpResponse(output.read(), content_type='application/pdf')
-        response['Content-Disposition'] = f'inline; filename="receipt_{sale.id}.pdf"'
-        return response
+        return HttpResponse(output.read(), content_type='application/pdf')
 
 
 
@@ -123,7 +135,12 @@ def pos_view(request):
         return render(request, 'core/receipt.html', {
         'sale': sale,
         'receipt': receipt,
-        'total': total,
+        'gross_total': total,
+        'discount_percent': 10,
+        'discount_amount': total * 0.10,
+        'tax_percent': 12,
+        'tax_amount': (total - (total * 0.10)) * 0.12,
+        'net_total': (total - (total * 0.10)) + ((total - (total * 0.10)) * 0.12),
 })
 
 
