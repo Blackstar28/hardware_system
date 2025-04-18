@@ -26,9 +26,10 @@ from django.http import HttpResponse
 import requests
 from django.http import JsonResponse
 from weasyprint import HTML
-import tempfile
+import tempfile, os
 from django.views.decorators.http import require_GET
 from decimal import Decimal
+from django.utils import timezone
 
 def purchase_order_list(request):
     return render(request, 'core/purchase_order_list.html', {})
@@ -46,47 +47,57 @@ def is_cashier(user):
 
 # Generate PDF Receipt
 # Generate PDF Receipt using WeasyPrint
-from weasyprint import HTML  # Make sure this is imported at the top
-import tempfile  # Also ensure this is imported at the top
+from decimal import Decimal
 
 def generate_receipt_pdf(request, sale_id):
-    sale = get_object_or_404(Sale, id=sale_id)
-    items = SaleItem.objects.filter(sale=sale)
+    try:
+        sale = get_object_or_404(Sale, id=sale_id)
+        items = SaleItem.objects.filter(sale=sale)
 
-    receipt = []
-    gross_total = 0
+        receipt = []
+        gross_total = Decimal("0.00")
 
-    for item in items:
-        line_total = item.quantity * item.price
-        receipt.append({
-            'name': item.product.name,
-            'qty': item.quantity,
-            'unit': item.price,
-            'total': line_total
+        for item in items:
+            line_total = item.quantity * item.price
+            receipt.append({
+                'name': item.product.name,
+                'qty': item.quantity,
+                'unit': item.price,
+                'total': line_total
+            })
+            gross_total += line_total
+
+        discount_percent = Decimal("10")
+        tax_percent = Decimal("12")
+        discount_amount = gross_total * (discount_percent / Decimal("100"))
+        tax_amount = (gross_total - discount_amount) * (tax_percent / Decimal("100"))
+        net_total = (gross_total - discount_amount) + tax_amount
+
+        html_string = render_to_string("core/receipt.html", {
+            'sale': sale,
+            'receipt': receipt,
+            'gross_total': gross_total,
+            'discount_percent': int(discount_percent),
+            'discount_amount': discount_amount,
+            'tax_percent': int(tax_percent),
+            'tax_amount': tax_amount,
+            'net_total': net_total,
+            'receipt_datetime': timezone.localtime(),
         })
-        gross_total += line_total
 
-    discount_percent = 10
-    tax_percent = 12
-    discount_amount = gross_total * (discount_percent / 100)
-    tax_amount = (gross_total - discount_amount) * (tax_percent / 100)
-    net_total = (gross_total - discount_amount) + tax_amount
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as output:
+            HTML(string=html_string).write_pdf(output.name)
+            output.seek(0)
+            response = HttpResponse(output.read(), content_type='application/pdf')
+            output.close()
+            os.remove(output.name)
+            return response
 
-    html_string = render_to_string("core/receipt.html", {
-        'sale': sale,
-        'receipt': receipt,
-        'gross_total': gross_total,
-        'discount_percent': discount_percent,
-        'discount_amount': discount_amount,
-        'tax_percent': tax_percent,
-        'tax_amount': tax_amount,
-        'net_total': net_total,
-    })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return HttpResponse(f"<h1>❌ PDF Error</h1><pre>{e}</pre>", status=500)
 
-    with tempfile.NamedTemporaryFile(delete=True) as output:
-        HTML(string=html_string).write_pdf(output.name)
-        output.seek(0)
-        return HttpResponse(output.read(), content_type='application/pdf')
 
 
 
