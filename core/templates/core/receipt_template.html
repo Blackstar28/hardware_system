@@ -25,11 +25,16 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
         }
         table th, table td {
             border: 1px solid #ccc;
             padding: 8px;
             text-align: left;
+        }
+        table th {
+            background-color: #007BFF;
+            color: white;
         }
         .total {
             text-align: right;
@@ -57,50 +62,35 @@
 <div class="receipt-box">
     <h2>AM Hardware Shop Receipt</h2>
 
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Receipt PDF</title>
-        <style>
-            body { font-family: Arial, sans-serif; font-size: 14px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #000; padding: 6px; text-align: left; }
-            h2 { text-align: center; }
-        </style>
-    </head>
-    <body>
-        <div class="receipt-box">
-            <h2>AM Hardware Shop Receipt</h2>
-            <p><strong>Date:</strong> {{ sale.timestamp }}</p>
-            <p><strong>Cashier:</strong> {{ sale.cashier.username }}</p>
-        
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Unit Price</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for item in receipt %}
-                    <tr>
-                        <td>{{ item.name }}</td>
-                        <td>{{ item.qty }}</td>
-                        <td>₱{{ item.unit|floatformat:2 }}</td>
-                        <td>₱{{ item.total|floatformat:2 }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        
-            <p class="total"><strong>Total: ₱{{ total|floatformat:2 }}</strong></p>
+    <p><strong>Date & Time:</strong> {% now "Y-m-d H:i:s" %}</p>
+    <p><strong>Cashier:</strong> {{ sale.cashier.username }}</p>
 
-        </div>
-    </body>
-    </html>
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for item in receipt %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.qty }}</td>
+                <td>₱{{ item.unit|floatformat:2 }}</td>
+                <td>₱{{ item.total|floatformat:2 }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="4">No items found in this sale.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="total"><strong>Total: ₱{{ total|floatformat:2 }}</strong></p>
 
     <div class="button-container">
         <a href="{% url 'generate_receipt_pdf' sale.id %}" class="btn" target="_blank">

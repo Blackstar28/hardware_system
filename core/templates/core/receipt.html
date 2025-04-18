@@ -57,7 +57,7 @@
 <body>
 <div class="receipt-box">
     <h2>AM Hardware Shop Receipt</h2>
-    <p><strong>Date:</strong> {{ sale.timestamp }}</p>
+    <p><strong>Date & Time:</strong> {% now "Y-m-d H:i:s" %}</p>
     <p><strong>Cashier:</strong> {{ sale.cashier.username }}</p>
 
     <table>

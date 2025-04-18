@@ -5,60 +5,83 @@
   <title>Create Purchase Order</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f3f4f6, #dfe9f3);
+      min-height: 100vh;
+      padding-top: 40px;
+    }
+    .card {
+      background-color: #ffffffee;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    h2 {
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .btn {
+      margin-right: 5px;
+    }
+  </style>
 </head>
-<body class="container mt-5">
+<body>
+  <div class="container">
+    <div class="card">
+      <h2>Create Purchase Order</h2>
+      <a href="{% url 'home' %}" class="btn btn-outline-secondary mb-3">← Back to Home</a>
 
-  <h2>Create Purchase Order</h2>
-  <a href="{% url 'home' %}" class="btn btn-outline-secondary mb-3">← Back to Home</a>
-
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-
-  <form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-      {{ form.as_p }}
-    </div>
-
-    <h4>Items</h4>
-    <table class="table" id="items-table">
-      {{ formset.management_form }}
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Quantity</th>
-          <th>Unit Price</th>
-          <th>Total</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for form in formset %}
-          <tr class="form-row">
-            <td>{{ form.product }}</td>
-            <td>{{ form.quantity }}</td>
-            <td>{{ form.unit_price }}</td>
-            <td class="row-total">0.00</td>
-            <td><button type="button" class="btn btn-danger btn-sm delete-row">×</button></td>
-          </tr>
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
         {% endfor %}
-      </tbody>
-    </table>
+      {% endif %}
 
-    <div class="mb-3">
-      <button type="button" id="add-row" class="btn btn-secondary">+ Add Item</button>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          {{ form.as_p }}
+        </div>
+
+        <h4>Items</h4>
+        <table class="table" id="items-table">
+          {{ formset.management_form }}
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for form in formset %}
+              <tr class="form-row">
+                <td>{{ form.product }}</td>
+                <td>{{ form.quantity }}</td>
+                <td>{{ form.unit_price }}</td>
+                <td class="row-total">0.00</td>
+                <td><button type="button" class="btn btn-danger btn-sm delete-row">×</button></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="mb-3">
+          <button type="button" id="add-row" class="btn btn-secondary">+ Add Item</button>
+        </div>
+
+        <div class="mb-3">
+          <strong>Total Price: ₱<span id="grand-total">0.00</span></strong>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Purchase Order</button>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">Return Home</a>
+      </form>
     </div>
-
-    <div class="mb-3">
-      <strong>Total Price: ₱<span id="grand-total">0.00</span></strong>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save Purchase Order</button>
-    <a href="{% url 'home' %}" class="btn btn-outline-secondary">Return Home</a>
-  </form>
+  </div>
 
   <script>
     function updateTotals() {
@@ -77,13 +100,11 @@
       const formsetPrefix = '{{ formset.prefix }}';
       let totalForms = $('#id_' + formsetPrefix + '-TOTAL_FORMS');
       
-      // Bind change for unit price and quantity
       function bindChangeEvents(row) {
         row.find('select, input').on('change keyup', function () {
           updateTotals();
         });
 
-        // Product change to auto-fill price
         row.find('select').on('change', function () {
           const productId = $(this).val();
           if (!productId) return;
