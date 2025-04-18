@@ -46,6 +46,9 @@ def is_cashier(user):
 
 # Generate PDF Receipt
 # Generate PDF Receipt using WeasyPrint
+from weasyprint import HTML  # Make sure this is imported at the top
+import tempfile  # Also ensure this is imported at the top
+
 def generate_receipt_pdf(request, sale_id):
     sale = get_object_or_404(Sale, id=sale_id)
     items = SaleItem.objects.filter(sale=sale)
@@ -63,8 +66,8 @@ def generate_receipt_pdf(request, sale_id):
         })
         gross_total += line_total
 
-    discount_percent = 10  # example
-    tax_percent = 12       # example
+    discount_percent = 10
+    tax_percent = 12
     discount_amount = gross_total * (discount_percent / 100)
     tax_amount = (gross_total - discount_amount) * (tax_percent / 100)
     net_total = (gross_total - discount_amount) + tax_amount
@@ -84,6 +87,7 @@ def generate_receipt_pdf(request, sale_id):
         HTML(string=html_string).write_pdf(output.name)
         output.seek(0)
         return HttpResponse(output.read(), content_type='application/pdf')
+
 
 
 
