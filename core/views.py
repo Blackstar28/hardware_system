@@ -32,9 +32,6 @@ from django.views.decorators.http import require_GET
 def purchase_order_list(request):
     return render(request, 'core/purchase_order_list.html', {})
 
-def pos_view(request):
-    products = Product.objects.all()
-    return render(request, 'pos.html', {'products': products})
 
 def home_view(request):
     return render(request, 'core/home.html')
