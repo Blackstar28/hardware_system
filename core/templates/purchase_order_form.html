@@ -1,19 +1,45 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<h2>Create Purchase Order</h2>
+<style>
+  body {
+    background-image: url("{% static 'images/bg-purchase.jpg' %}"); /* adjust the path to your image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  {{ formset.management_form }}
+  .form-wrapper {
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
 
-  {% for item_form in formset %}
-    <div class="border p-2 mb-2">
-      {{ item_form.as_p }}
-    </div>
-  {% endfor %}
+  h2 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+</style>
 
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+<div class="form-wrapper">
+  <h2>Create Purchase Order</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {{ formset.management_form }}
+
+    {% for item_form in formset %}
+      <div class="border p-2 mb-2">
+        {{ item_form.as_p }}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
 {% endblock %}

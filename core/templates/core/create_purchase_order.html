@@ -7,11 +7,15 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <style>
     body {
-      background: linear-gradient(135deg, #f3f4f6, #dfe9f3);
-      min-height: 100vh;
-      padding-top: 40px;
+      background-image: url('/static/images/101.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-attachment: fixed;
+      font-family: 'Segoe UI', sans-serif;
     }
     .card {
+      
       background-color: #ffffffee;
       border-radius: 10px;
       padding: 30px;
@@ -30,7 +34,7 @@
   <div class="container">
     <div class="card">
       <h2>Create Purchase Order</h2>
-      <a href="{% url 'home' %}" class="btn btn-outline-secondary mb-3">← Back to Home</a>
+      
 
       {% if messages %}
         {% for message in messages %}

@@ -1,8 +1,24 @@
 {% extends 'base.html' %}
+
 {% block content %}
+<style>
+  body {
+    background-image: url('/static/images/101.jpg'); /* update with your image path */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .container {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+</style>
+
 <div class="container mt-4">
   <h2>Deliveries</h2>
-
 
   <table class="table table-striped">
     <thead>
@@ -22,7 +38,6 @@
         <td>{{ delivery.status }}</td>
       </tr>
       {% endfor %}
-      
     </tbody>
   </table>
 </div>
