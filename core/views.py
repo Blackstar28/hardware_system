@@ -30,6 +30,24 @@ import tempfile, os
 from django.views.decorators.http import require_GET
 from decimal import Decimal
 from django.utils import timezone
+from django.contrib.auth import authenticate, login
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+        
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user:
+            login(request, user)
+            return redirect('home')
+        else:
+            messages.error(request, "Invalid credentials")
+
+    return render(request, 'core/home.html') 
 
 def purchase_order_list(request):
     return render(request, 'core/purchase_order_list.html', {})
@@ -100,7 +118,9 @@ def generate_receipt_pdf(request, sale_id):
 
 
 
-
+@login_required
+def home_view(request):
+    return render(request, 'core/home.html')
 
 
 @user_passes_test(is_cashier)

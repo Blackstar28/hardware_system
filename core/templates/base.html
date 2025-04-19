@@ -36,5 +36,12 @@
       {% endblock %}
     </div>
   </div>
+
+  {% if user.is_authenticated %}
+  <form action="{% url 'logout' %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-danger">Logout</button>
+  </form>
+{% endif %}
 </body>
 </html>

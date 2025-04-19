@@ -1,19 +1,20 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
+  <style>
+    body {
+        background-image: url("{% static 'images/101.jpg' %}");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed;
+        font-family: 'Segoe UI', sans-serif;
+    }
+  </style>
+
   <h2>Purchase Orders</h2>
-  <p>This is the purchase order list page.</p>
+  <p>your purchase has been directed to the admin.</p>
 
   <a href="{% url 'home' %}" class="btn btn-outline-secondary mt-3">← Return to Home</a>
 {% endblock %}
-
-<style>
-  body {
-      background-image: url('/static/images/101.jpg');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center;
-      background-attachment: fixed;
-      font-family: 'Segoe UI', sans-serif;
-  }
-  </style>
