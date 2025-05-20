@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>POS - Cash Register</title>
+    <title>Cash Register</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
@@ -52,16 +52,16 @@
     <div class="container-fluid">
         <span class="navbar-brand logo-text">🏪 AM Hardware POS</span>
         <div class="d-flex">
-            <form method="POST" action="{% url 'logout' %}">
+            <form method="POST" action="{% url 'home' %}">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger">🚪 Log Out</button>
+                <button type="submit" class="btn btn-danger">🚪 Return Home</button>
             </form>
         </div>
     </div>
 </nav>
 
 <div class="container">
-    <h2 class="mb-4">🛒 Point of Sale - Cash Register</h2>
+    <h2 class="mb-4">🛒Cash Register</h2>
 
     <form action="{% url 'pos_view' %}" method="post">
         {% csrf_token %}
@@ -111,7 +111,23 @@
   });
 </script>
     </form>
+    
 
+
+    <!-- ✅ Gross, Discount, Tax, Net -->
+    <div class="mt-4 p-3 bg-light border rounded" style="max-width: 500px;">
+        <h5>📊 Totals</h5>
+        <div class="mb-2"><strong>Gross Total:</strong> ₱<span id="gross-total">0.00</span></div>
+        <div class="mb-2">
+            <label for="discount"><strong>Discount:</strong></label>
+            <input type="number" id="discount" value="0" class="form-control" onchange="calculateTotal()">
+        </div>
+        <div class="mb-2">
+            <label for="tax"><strong>Tax:</strong></label>
+            <input type="number" id="tax" value="0" class="form-control" onchange="calculateTotal()">
+        </div>
+        <div class="mb-2"><strong>Net Total:</strong> ₱<span id="net-total">0.00</span></div>
+    </div>
     
 
     <!-- ✅ Calculator -->
@@ -124,7 +140,12 @@
         <label>Change:</label>
         <input type="text" id="change_output" readonly class="form-control mb-2">
         <button type="button" onclick="calculateChange()" class="btn btn-primary w-100">Calculate Change</button>
+        <br>
+        <br>
+        
     </div>
+
+    
 
 
     <!-- ✅ Product Table -->

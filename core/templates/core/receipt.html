@@ -112,10 +112,7 @@
     <p class="tax">Tax ({{ tax_percent }}%): +₱{{ tax_amount|floatformat:2 }}</p>
     <p class="net">Net Total: ₱{{ net_total|floatformat:2 }}</p>
 
-    <div class="button-container">
-        <a href="{% url 'generate_receipt_pdf' sale.id %}" class="btn" target="_blank">📄 Download PDF</a>
-        <a href="{% url 'pos_view' %}" class="btn btn-primary mt-3">🔙 Return to POS</a>
-    </div>
+    
 </div>
 </body>
 </html>
