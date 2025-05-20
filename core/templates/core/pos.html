@@ -114,35 +114,37 @@
     
 
 
-    <!-- ✅ Gross, Discount, Tax, Net -->
-    <div class="mt-4 p-3 bg-light border rounded" style="max-width: 500px;">
-        <h5>📊 Totals</h5>
-        <div class="mb-2"><strong>Gross Total:</strong> ₱<span id="gross-total">0.00</span></div>
-        <div class="mb-2">
-            <label for="discount"><strong>Discount:</strong></label>
-            <input type="number" id="discount" value="0" class="form-control" onchange="calculateTotal()">
+    <div class="row mt-4">
+        <!-- Totals Section (Left Column) -->
+        <div class="col-md-6">
+            <div class="p-3 bg-light border rounded">
+                <h5>📊 Totals</h5>
+                <div class="mb-2"><strong>Gross Total:</strong> ₱<span id="gross-total">0.00</span></div>
+                <div class="mb-2">
+                    <label for="discount"><strong>Discount:</strong></label>
+                    <input type="number" id="discount" value="0" class="form-control" onchange="calculateTotal()">
+                </div>
+                <div class="mb-2">
+                    <label for="tax"><strong>Tax:</strong></label>
+                    <input type="number" id="tax" value="0" class="form-control" onchange="calculateTotal()">
+                </div>
+                <div class="mb-2"><strong>Net Total:</strong> ₱<span id="net-total">0.00</span></div>
+            </div>
         </div>
-        <div class="mb-2">
-            <label for="tax"><strong>Tax:</strong></label>
-            <input type="number" id="tax" value="0" class="form-control" onchange="calculateTotal()">
-        </div>
-        <div class="mb-2"><strong>Net Total:</strong> ₱<span id="net-total">0.00</span></div>
-    </div>
     
-
-    <!-- ✅ Calculator -->
-    <div class="mt-4 p-4 border rounded shadow-sm bg-light" style="max-width: 400px;">
-        <h4>🧮 Payment Calculator</h4>
-        <label>Total Price:</label>
-        <input type="text" id="total_price" readonly class="form-control mb-2">
-        <label>Customer Payment:</label>
-        <input type="number" id="customer_payment" class="form-control mb-2">
-        <label>Change:</label>
-        <input type="text" id="change_output" readonly class="form-control mb-2">
-        <button type="button" onclick="calculateChange()" class="btn btn-primary w-100">Calculate Change</button>
-        <br>
-        <br>
-        
+        <!-- Calculator Section (Right Column) -->
+        <div class="col-md-6">
+            <div class="p-4 border rounded shadow-sm bg-light">
+                <h4>🧮 Payment Calculator</h4>
+                <label>Total Price:</label>
+                <input type="text" id="total_price" readonly class="form-control mb-2">
+                <label>Customer Payment:</label>
+                <input type="number" id="customer_payment" class="form-control mb-2">
+                <label>Change:</label>
+                <input type="text" id="change_output" readonly class="form-control mb-2">
+                <button type="button" onclick="calculateChange()" class="btn btn-primary w-100">Calculate Change</button>
+            </div>
+        </div>
     </div>
 
     
