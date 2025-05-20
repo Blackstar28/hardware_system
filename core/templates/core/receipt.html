@@ -114,5 +114,10 @@
 
     
 </div>
+
+<div class="button-container">
+    <a href="{% url 'generate_receipt_pdf' sale.id %}" class="btn" target="_blank">📄 Download PDF</a>
+    <a href="{% url 'pos_view' %}" class="btn btn-primary mt-3">🔙 Return to Cash Register</a>
+</div>
 </body>
 </html>
