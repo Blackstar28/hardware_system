@@ -84,9 +84,10 @@
 
         <div class="mt-3">
             <button type="button" class="btn btn-secondary" onclick="addForm()">➕ Add Item</button>
+            <button type="button" class="btn btn-warning" onclick="resetForm()">🔄 Reset</button>
             <button type="submit" class="btn btn-success" id="complete-sale-btn">💰 Complete Sale</button>
             <div id="sale-message" style="display: none;" class="alert alert-success text-center mt-3"></div>
-            <button type="button" class="btn btn-warning" onclick="resetForm()">🔄 Reset</button>
+            
 
         </div>
         <script>
@@ -111,20 +112,7 @@
 </script>
     </form>
 
-    <!-- ✅ Gross, Discount, Tax, Net -->
-    <div class="mt-4 p-3 bg-light border rounded" style="max-width: 500px;">
-        <h5>📊 Totals</h5>
-        <div class="mb-2"><strong>Gross Total:</strong> ₱<span id="gross-total">0.00</span></div>
-        <div class="mb-2">
-            <label for="discount"><strong>Discount:</strong></label>
-            <input type="number" id="discount" value="0" class="form-control" onchange="calculateTotal()">
-        </div>
-        <div class="mb-2">
-            <label for="tax"><strong>Tax:</strong></label>
-            <input type="number" id="tax" value="0" class="form-control" onchange="calculateTotal()">
-        </div>
-        <div class="mb-2"><strong>Net Total:</strong> ₱<span id="net-total">0.00</span></div>
-    </div>
+    
 
     <!-- ✅ Calculator -->
     <div class="mt-4 p-4 border rounded shadow-sm bg-light" style="max-width: 400px;">
@@ -138,9 +126,6 @@
         <button type="button" onclick="calculateChange()" class="btn btn-primary w-100">Calculate Change</button>
     </div>
 
-    <!-- ✅ Receipt -->
-    <div id="receipt" class="receipt-area mt-4"></div>
-    <button onclick="printReceipt()" class="btn btn-outline-secondary mt-2">🖨️ Print / Save as PDF</button>
 
     <!-- ✅ Product Table -->
     <div class="mt-5">
