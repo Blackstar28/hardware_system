@@ -134,7 +134,7 @@
 
       $('#add-row').click(function () {
         const formCount = parseInt(totalForms.val());
-        const newRow = $('.form-row:first').clone(true);
+        const newRow = $('.form-row:first').clone(false);
         newRow.find('select, input').each(function () {
           const name = $(this).attr('name').replace('-0-', `-${formCount}-`);
           const id = 'id_' + name;
