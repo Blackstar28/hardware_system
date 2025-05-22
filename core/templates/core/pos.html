@@ -123,10 +123,7 @@
             <div class="p-3 bg-light border rounded">
                 <h5>📊 Totals</h5>
                 <div class="mb-2"><strong>Gross Total:</strong> ₱<span id="gross-total">0.00</span></div>
-                <div class="mb-2">
-                    <label for="discount"><strong>Discount:</strong></label>
-                    <input type="number" id="discount" value="0" class="form-control" onchange="calculateTotal()">
-                </div>
+                
                 <div class="mb-2">
    
                     <strong>Tax (12%):</strong> ₱<span id="tax-amount">0.00</span>
@@ -223,9 +220,9 @@
         row.querySelector('.item-total').innerText = `₱${lineTotal.toFixed(2)}`;
     });
 
-    const discount = parseFloat(document.getElementById('discount').value) || 0;
-    const tax = gross * TAX_RATE;
-    const net = gross - discount + tax;
+        const tax = gross * TAX_RATE;
+        const net = gross + tax;
+
 
     document.getElementById('tax-amount').innerText = tax.toFixed(2);
     document.getElementById('total_price').value = net.toFixed(2);
@@ -255,8 +252,7 @@
         html += `</ul>
             <p>
                 <strong>Gross:</strong> ₱${document.getElementById('gross-total').innerText}<br>
-                <strong>Discount:</strong> ₱${document.getElementById('discount').value}<br>
-                <strong>Tax:</strong> ₱${document.getElementById('tax').value}<br>
+                <strong>Tax:</strong> ₱${document.getElementById('tax-amount').innerText}<br>
                 <strong>Net Total:</strong> ₱${total.toFixed(2)}<br>
                 <strong>Payment:</strong> ₱${payment}<br>
                 <strong>Change:</strong> ₱${change < 0 ? "Insufficient" : change.toFixed(2)}
@@ -277,8 +273,6 @@
     function resetForm() {
         document.querySelectorAll('.form-row').forEach((row, i) => { if (i > 0) row.remove(); });
         document.querySelector('.qty-input').value = 1;
-        document.getElementById('discount').value = 0;
-        document.getElementById('tax').value = 0;
         document.getElementById('total_price').value = '';
         document.getElementById('customer_payment').value = '';
         document.getElementById('change_output').value = '';
