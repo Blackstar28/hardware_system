@@ -98,15 +98,16 @@
             <h2 class="text-center mb-1">🛠️ AM Hardware Receipt</h2>
             <p class="text-center text-muted mb-4">Thank you for buying with us!</p>
             <div class="receipt-body"></div>
+
             <div class="receipt-footer mt-4 text-end">
-                <strong>Total: ₱0.00</strong>
+                
             </div>
         </div>
     </div>
 
     <div class="mt-4 text-center">
         <button class="btn btn-primary me-2" onclick="printReceipt()">🖨️ Print Receipt</button>
-        <button class="btn btn-outline-secondary" onclick="downloadReceipt()">⬇️ Download as PDF</button>
+       
     </div>
 
     <!-- 🧾 New Item Template -->
@@ -246,9 +247,9 @@
 
     function printReceipt() {
         const receipt = document.getElementById('receipt');
-        if (!receipt.innerText.trim()) {
-            alert("❗ Receipt is empty. Please complete a sale first.");
-            return;
+            if (!receipt || receipt.offsetHeight === 0 || receipt.querySelector('.receipt-body').innerText.trim() === "") {
+            alert("❗ Receipt is empty or not visible. Please complete a sale first.");
+            return;;
         }
         const printWindow = window.open('', '', 'width=600,height=700');
         printWindow.document.write('<html><head><title>Receipt</title><style>body{font-family:Arial;padding:20px;} ul{padding-left:20px;}</style></head><body>');
@@ -269,27 +270,36 @@
         return;
     }
 
+    // Make sure the receipt is fully styled and visible
+    receipt.style.display = 'block';
+
     const opt = {
         margin: 0.5,
         filename: 'receipt.pdf',
-        image: { type: 'jpeg', quality: 1 },
+        image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
             scale: 2,
             useCORS: true,
-            backgroundColor: "#ffffff"  // force white background
+            backgroundColor: "#ffffff"
         },
         jsPDF: {
-            unit: 'in',
-            format: 'letter',
+            unit: 'mm',
+            format: 'a4',
             orientation: 'portrait'
         }
     };
 
-    // ✅ Allow DOM time to render
+    // Wait for DOM rendering before generating PDF
     setTimeout(() => {
-        html2pdf().set(opt).from(receipt).save();
-    }, 100);
+        html2pdf().set(opt).from(receipt).save().catch(err => {
+            console.error("PDF generation error:", err);
+            alert("⚠️ Failed to generate PDF. Try again.");
+        });
+    }, 500);
 }
+
+
+
 
 
 </script>
