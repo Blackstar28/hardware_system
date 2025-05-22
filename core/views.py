@@ -30,6 +30,7 @@ import tempfile, os
 from django.views.decorators.http import require_GET
 from decimal import Decimal
 from django.utils import timezone
+from .models import Sale, SaleItem 
 from django.contrib.auth import authenticate, login
 
 def login_view(request):
@@ -81,7 +82,9 @@ def generate_receipt_pdf(request, sale_id):
                 'name': item.product.name,
                 'qty': item.quantity,
                 'unit': item.price,
-                'total': line_total
+                'total': line_total,
+                'receipt_datetime': timezone.now()
+                
             })
             gross_total += line_total
 

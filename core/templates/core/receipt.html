@@ -79,7 +79,8 @@
 <body>
 <div class="receipt-box">
     <h2>AM Hardware Shop Receipt</h2>
-    <p><strong>Date & Time:</strong> {{ sale.created_at|date:"Y-m-d H:i:s" }}</p>
+    <p><strong>Date & Time:</strong> {{ receipt_datetime|date:"F d, Y - h:i A" }}</p>
+
     <p><strong>Cashier:</strong> {{ sale.cashier.username }}</p>
 
     <table>
