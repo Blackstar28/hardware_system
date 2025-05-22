@@ -30,7 +30,6 @@ import tempfile, os
 from django.views.decorators.http import require_GET
 from decimal import Decimal
 from django.utils import timezone
-from .models import Sale, SaleItem 
 from django.contrib.auth import authenticate, login
 
 def login_view(request):
@@ -82,9 +81,7 @@ def generate_receipt_pdf(request, sale_id):
                 'name': item.product.name,
                 'qty': item.quantity,
                 'unit': item.price,
-                'total': line_total,
-                'receipt_datetime': timezone.now()
-                
+                'total': line_total
             })
             gross_total += line_total
 
@@ -181,16 +178,9 @@ def pos_view(request):
                 tax_amount = taxable_total * tax_percent
                 net_total = taxable_total + tax_amount
 
-                return render(request, 'core/receipt.html', {
-            'sale': sale,
-            'receipt': receipt,
-            'gross_total': total,
-            'discount_percent': int(discount_percent * 100),
-            'discount_amount': discount_amount,
-            'tax_percent': int(tax_percent * 100),
-            'tax_amount': tax_amount,
-            'net_total': net_total,
-    })
+                messages.success(request, "✅ Sale completed successfully.")
+                return redirect('pos_view')
+            
             else:
                 print("🛑 Formset is invalid:")
                 print(formset.errors)

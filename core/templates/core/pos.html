@@ -14,34 +14,23 @@
             background-attachment: fixed;
             font-family: 'Segoe UI', sans-serif;
         }
-        .navbar {
-            background-color: #1a202c;
-        }
-        .logo-text {
-            font-weight: bold;
-            font-size: 1.5em;
-        }
+        .navbar { background-color: #1a202c; }
+        .logo-text { font-weight: bold; font-size: 1.5em; }
         .container {
             background-color: #ffffff;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
-        .form-row {
-            margin-bottom: 10px;
-        }
-        .item-total {
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        .select2-container {
-            width: 200px !important;
-        }
+        .form-row { margin-bottom: 10px; }
+        .item-total { font-weight: bold; margin-left: 10px; }
+        .select2-container { width: 200px !important; }
         .receipt-area {
             background: #fdfdfd;
             padding: 20px;
             border: 1px dashed #ccc;
             border-radius: 10px;
+            margin-top: 30px;
         }
     </style>
 </head>
@@ -51,19 +40,17 @@
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container-fluid">
         <span class="navbar-brand logo-text">🏪 AM Hardware POS</span>
-        <div class="d-flex">
-            <form method="POST" action="{% url 'home' %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">🚪 Return Home</button>
-            </form>
-        </div>
+        <form method="POST" action="{% url 'home' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">🚪 Return Home</button>
+        </form>
     </div>
 </nav>
 
 <div class="container">
-    <h2 class="mb-4">🛒Cash Register</h2>
+    <h2 class="mb-4">🛒 Cash Register</h2>
 
-    <form action="{% url 'pos_view' %}" method="post">
+    <form action="{% url 'pos_view' %}" method="post" id="salesForm">
         {% csrf_token %}
         {{ formset.management_form }}
 
@@ -86,55 +73,12 @@
             <button type="button" class="btn btn-secondary" onclick="addForm()">➕ Add Item</button>
             <button type="button" class="btn btn-warning" onclick="resetForm()">🔄 Reset</button>
             <button type="submit" class="btn btn-success" id="complete-sale-btn">💰 Complete Sale</button>
-            <div id="sale-message" style="display: none;" class="alert alert-success text-center mt-3"></div>
-            
-
+            <div id="sale-message" class="alert alert-success text-center mt-3" style="display:none;"></div>
         </div>
-        
-        <script>
-            const TAX_RATE = 0.12; // 12% tax rate
-
-  document.getElementById("completeSaleBtn").addEventListener("click", function (event) {
-    let valid = true;
-    document.querySelectorAll(".product-row").forEach(function (row) {
-      const product = row.querySelector(".product-select");
-      const qty = row.querySelector(".quantity-input");
-
-      if ((product && product.value === "") || (qty && qty.value === "")) {
-        valid = false;
-      }
-    });
-
-    if (!valid) {
-      alert("Please fill all product and quantity fields before completing the sale.");
-      event.preventDefault();
-    } else {
-      document.getElementById("salesForm").submit();  // or just allow the form to submit naturally
-    }
-  });
-</script>
     </form>
-    
 
-
+    <!-- 🧮 Payment Section -->
     <div class="row mt-4">
-        <!-- Totals Section (Left Column) -->
-        <div class="col-md-6">
-            <div class="p-3 bg-light border rounded">
-                <h5>📊 Totals</h5>
-                <div class="mb-2"><strong>Gross Total:</strong> ₱<span id="gross-total">0.00</span></div>
-                
-                <div class="mb-2">
-   
-                    <strong>Tax (12%):</strong> ₱<span id="tax-amount">0.00</span>
-
-                </div>
-
-                <div class="mb-2"><strong>Net Total:</strong> ₱<span id="net-total">0.00</span></div>
-            </div>
-        </div>
-    
-        <!-- Calculator Section (Right Column) -->
         <div class="col-md-6">
             <div class="p-4 border rounded shadow-sm bg-light">
                 <h4>🧮 Payment Calculator</h4>
@@ -149,30 +93,28 @@
         </div>
     </div>
 
-    
+    <!-- 🧾 Receipt Area -->
+    <div class="receipt-area" id="receipt"></div>
+    <div class="mt-3">
+        <button class="btn btn-primary" onclick="printReceipt()">🖨️ Print Receipt</button>
+        <button class="btn btn-outline-secondary" onclick="downloadReceipt()">⬇️ Download as PDF</button>
+    </div>
 
-
-    <!-- ✅ Product Table -->
+    <!-- 🔍 Product List -->
     <div class="mt-5">
         <h4>📦 Product List</h4>
         <input type="text" id="productSearch" class="form-control mb-3" placeholder="Search products...">
         <table class="table table-bordered table-striped">
-            <thead class="table-light">
-                <tr><th>Name</th><th>Stock</th><th>Price</th></tr>
-            </thead>
+            <thead class="table-light"><tr><th>Name</th><th>Stock</th><th>Price</th></tr></thead>
             <tbody id="productTable">
                 {% for product in products %}
-                <tr>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.stock }}</td>
-                    <td>₱{{ product.price }}</td>
-                </tr>
+                <tr><td>{{ product.name }}</td><td>{{ product.stock }}</td><td>₱{{ product.price }}</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <!-- 🔧 Template for JS Form -->
+    <!-- 🧾 New Item Template -->
     <template id="empty-form-template">
         <div class="form-row d-flex align-items-center mt-2">
             <select name="form-__prefix__-product" class="form-select product-select me-2">
@@ -187,8 +129,10 @@
     </template>
 </div>
 
+<!-- ✅ JS Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
     $(document).ready(function () {
         $('.product-select').select2();
@@ -197,11 +141,11 @@
 
     function addForm() {
         const formCount = document.getElementById('id_form-TOTAL_FORMS');
-        const currentFormCount = parseInt(formCount.value);
-        const newForm = document.getElementById('empty-form-template').innerHTML.replace(/__prefix__/g, currentFormCount);
+        const newForm = document.getElementById('empty-form-template').innerHTML.replace(/__prefix__/g, formCount.value);
         document.getElementById('form-list').insertAdjacentHTML('beforeend', newForm);
-        formCount.value = currentFormCount + 1;
-        $('.product-select').last().select2();
+        formCount.value = parseInt(formCount.value) + 1;
+        $('.product-select').select2();
+        calculateTotal();
     }
 
     function removeForm(button) {
@@ -209,75 +153,50 @@
         calculateTotal();
     }
 
-   function calculateTotal() {
-    let gross = 0;
-    document.querySelectorAll('.form-row').forEach(row => {
-        const select = row.querySelector('.product-select');
-        const qty = row.querySelector('.qty-input').value || 0;
-        const price = select.options[select.selectedIndex].dataset.price || 0;
-        const lineTotal = parseFloat(qty) * parseFloat(price);
-        gross += lineTotal;
-        row.querySelector('.item-total').innerText = `₱${lineTotal.toFixed(2)}`;
-    });
-
-        const tax = gross * TAX_RATE;
-        const net = gross + tax;
-
-
-    document.getElementById('tax-amount').innerText = tax.toFixed(2);
-    document.getElementById('total_price').value = net.toFixed(2);
-    document.getElementById('gross-total').innerText = gross.toFixed(2);
-    document.getElementById('net-total').innerText = net.toFixed(2);
-
-    return net;
-}
-
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll('.form-row').forEach(row => {
+            const select = row.querySelector('.product-select');
+            const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+            const price = parseFloat(select.selectedOptions[0].dataset.price) || 0;
+            const lineTotal = qty * price;
+            row.querySelector('.item-total').innerText = `₱${lineTotal.toFixed(2)}`;
+            total += lineTotal;
+        });
+        document.getElementById('total_price').value = total.toFixed(2);
+        return total;
+    }
 
     function calculateChange() {
-        const net = calculateTotal();
+        const total = calculateTotal();
         const payment = parseFloat(document.getElementById('customer_payment').value) || 0;
-        const change = payment - net;
+        const change = payment - total;
         document.getElementById('change_output').value = change < 0 ? "Insufficient" : change.toFixed(2);
-        showReceipt(net, payment, change);
+        showReceipt(total, payment, change);
     }
 
     function showReceipt(total, payment, change) {
-        let html = "<h3>🧾 Receipt</h3><ul>";
+        let html = "<h4>🧾 Receipt</h4><ul>";
         document.querySelectorAll('.form-row').forEach(row => {
             const name = row.querySelector('.product-select').selectedOptions[0].text;
             const qty = row.querySelector('.qty-input').value;
             const price = row.querySelector('.product-select').selectedOptions[0].dataset.price;
-            html += `<li>${name} x${qty} - ₱${(qty * price).toFixed(2)}</li>`;
+            const subtotal = qty * price;
+            html += `<li>${name} x${qty} - ₱${subtotal.toFixed(2)}</li>`;
         });
         html += `</ul>
-            <p>
-                <strong>Gross:</strong> ₱${document.getElementById('gross-total').innerText}<br>
-                <strong>Tax:</strong> ₱${document.getElementById('tax-amount').innerText}<br>
-                <strong>Net Total:</strong> ₱${total.toFixed(2)}<br>
-                <strong>Payment:</strong> ₱${payment}<br>
-                <strong>Change:</strong> ₱${change < 0 ? "Insufficient" : change.toFixed(2)}
-            </p>`;
-        document.getElementById("receipt").innerHTML = html;
-    }
-
-    function printReceipt() {
-        const content = document.getElementById('receipt').innerHTML;
-        const win = window.open('', '', 'width=600,height=700');
-        win.document.write('<html><head><title>Receipt</title></head><body>');
-        win.document.write(content);
-        win.document.write('</body></html>');
-        win.document.close();
-        win.print();
+            <p><strong>Total:</strong> ₱${total.toFixed(2)}<br>
+            <strong>Payment:</strong> ₱${payment.toFixed(2)}<br>
+            <strong>Change:</strong> ${change < 0 ? "Insufficient" : "₱" + change.toFixed(2)}</p>`;
+        document.getElementById('receipt').innerHTML = html;
     }
 
     function resetForm() {
         document.querySelectorAll('.form-row').forEach((row, i) => { if (i > 0) row.remove(); });
-        document.querySelector('.qty-input').value = 1;
+        document.querySelector('.qty-input').value = 0;
         document.getElementById('total_price').value = '';
         document.getElementById('customer_payment').value = '';
         document.getElementById('change_output').value = '';
-        document.getElementById('gross-total').innerText = '0.00';
-        document.getElementById('net-total').innerText = '0.00';
         document.getElementById('receipt').innerHTML = '';
         calculateTotal();
     }
@@ -291,31 +210,61 @@
         });
     });
 
-    // ✅ Validate all fields before submitting the form
     document.getElementById('complete-sale-btn').addEventListener('click', function (event) {
         let valid = true;
-        const rows = document.querySelectorAll('.form-row');
-
-        rows.forEach(row => {
-            const product = row.querySelector('.product-select');
+        document.querySelectorAll('.form-row').forEach(row => {
             const qty = row.querySelector('.qty-input');
-
-            if (!product.value || qty.value === '' || parseInt(qty.value) <= 0) {
-                valid = false;
-            }
+            if (parseInt(qty.value) <= 0) valid = false;
         });
 
         if (!valid) {
             event.preventDefault();
-            alert("❗ Please fill in all product and quantity fields correctly before completing the sale.");
+            alert("❗ Please enter a valid quantity (min 1) for all products.");
         } else {
             const messageBox = document.getElementById('sale-message');
             messageBox.textContent = "✅ Sale completed!";
             messageBox.style.display = "block";
-            messageBox.scrollIntoView({ behavior: 'smooth' });
-            // Let the form submit naturally
         }
     });
+
+    function printReceipt() {
+        const receiptContent = document.getElementById('receipt').innerHTML;
+
+        if (!receiptContent.trim()) {
+            alert("❗ Receipt is empty. Please complete a sale first.");
+            return;
+        }
+
+        const printWindow = window.open('', '', 'width=600,height=700');
+        printWindow.document.write('<html><head><title>Receipt</title>');
+        printWindow.document.write('<style>body{font-family:Arial;padding:20px;} ul{padding-left:20px;} </style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(receiptContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    }
+
+    function downloadReceipt() {
+        const receipt = document.getElementById('receipt');
+
+        if (!receipt.innerHTML.trim()) {
+            alert("❗ Receipt is empty. Please complete a sale first.");
+            return;
+        }
+
+        const opt = {
+            margin:       0.5,
+            filename:     'receipt.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(receipt).save();
+    }
 </script>
 
 </body>
