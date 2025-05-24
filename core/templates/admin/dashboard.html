@@ -11,8 +11,11 @@
 
 <div style="margin-top: 20px;">
     <a href="?reset=true" class="btn btn-danger">Reset Today's Sales</a>
+    <br>
     <a href="{% url 'download_sales_pdf' %}" class="btn btn-primary">Download Sales Report PDF</a>
+    <br>
     <button onclick="window.print()" class="btn btn-success">Print Page</button>
+    <br>
     <a href="{% url 'archived_sales_view' %}" class="btn btn-warning">View Archived Sales</a>
 </div>
 

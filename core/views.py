@@ -438,8 +438,8 @@ def get_product_price(request):
 def dashboard_view(request):
     sales = Sale.objects.all()
     gross_total = sum(s.total for s in sales)
-    discounted_total = gross_total * 0.95
-    net_total = discounted_total * 1.12
+    discounted_total = gross_total * Decimal('0.95')
+    net_total = discounted_total * Decimal('1.12')
 
     if request.GET.get("reset") == "true":
         breakdown = [
@@ -465,8 +465,8 @@ def dashboard_view(request):
 def download_sales_pdf(request):
     sales = Sale.objects.all()
     gross_total = sum(s.total for s in sales)
-    discounted_total = gross_total * 0.95
-    net_total = discounted_total * 1.12
+    discounted_total = gross_total * Decimal('0.95')
+    net_total = discounted_total * Decimal('1.12')
 
     html_string = render_to_string('admin/sales_pdf.html', {
         'gross_total': gross_total,
@@ -481,6 +481,62 @@ def download_sales_pdf(request):
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="today_sales.pdf"'
     return response
+
+def archived_sales_view(request):
+    archives = ArchivedSale.objects.all().order_by('-archived_at')
+    query = request.GET.get('q')
+    date = request.GET.get('date')
+
+    if date:
+        try:
+            selected_date = datetime.strptime(date, '%Y-%m-%d').date()
+            archives = archives.filter(archived_at__date=selected_date)
+        except ValueError:
+            pass
+
+    results = []
+    for archive in archives:
+        try:
+            breakdown = json.loads(archive.breakdown)
+        except json.JSONDecodeError:
+            breakdown = []
+
+        if query:
+            if not any(query.lower() in str(s.get('cashier', '')).lower() for s in breakdown):
+                continue
+
+        archive.parsed_breakdown = breakdown
+        results.append(archive)
+
+    return render(request, "admin/archived_sales.html", {
+        "archives": results,
+        "search_query": query or '',
+        "search_date": date or '',
+    })
+
+def download_sales_pdf(request):
+    from decimal import Decimal
+    sales = Sale.objects.all()
+    gross_total = sum(s.total for s in sales)
+    discounted_total = gross_total * Decimal('0.95')
+    net_total = discounted_total * Decimal('1.12')
+
+    html_string = render_to_string('admin/sales_pdf.html', {
+        'gross_total': gross_total,
+        'discounted_total': discounted_total,
+        'net_total': net_total,
+        'sales': sales
+    })
+
+    html = HTML(string=html_string)
+    pdf_file = html.write_pdf()
+
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="today_sales.pdf"'
+    return response
+
+
+
 
 def archived_sales_view(request):
     archives = ArchivedSale.objects.all().order_by('-archived_at')

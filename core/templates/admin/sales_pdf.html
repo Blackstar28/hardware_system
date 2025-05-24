@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sales Report</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      color: #000;
+      margin: 40px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 8px;
+      text-align: left;
+    }
+    .totals {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sales Report</h1>
+
+  <div class="totals">
+    <p><strong>Gross Total:</strong> ₱{{ gross_total|floatformat:2 }}</p>
+    <p><strong>Discounted Total:</strong> ₱{{ discounted_total|floatformat:2 }}</p>
+    <p><strong>Net Total:</strong> ₱{{ net_total|floatformat:2 }}</p>
+  </div>
+
+  <h2>Breakdown</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Total</th>
+        <th>Cashier</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sale in sales %}
+      <tr>
+        <td>{{ sale.id }}</td>
+        <td>₱{{ sale.total|floatformat:2 }}</td>
+        <td>{{ sale.cashier }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">No sales today.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
+
