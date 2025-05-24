@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+import json
 
 
 # Create your models here.
@@ -26,6 +27,9 @@ class ArchivedSale(models.Model):
     discounted_total = models.DecimalField(max_digits=10, decimal_places=2)
     net_total = models.DecimalField(max_digits=10, decimal_places=2)
     breakdown = models.TextField()  # JSON string
+   
+    def get_sales(self):
+        return json.loads(self.breakdown)
 
 class Sale(models.Model):
     cashier = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)

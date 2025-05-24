@@ -29,6 +29,11 @@
         <a href="{% url 'download_archive_pdf' archive.id %}" class="btn btn-success" style="margin-top: 10px;">
             📄 Download PDF
         </a>
+        <br>
+        <!-- Excel Download Button -->
+        <a href="{% url 'download_archive_excel' archive.id %}" class="btn btn-info" style="margin-left: 10px;">
+    📊 Export to Excel
+    </a>
 
         <hr>
     </div>

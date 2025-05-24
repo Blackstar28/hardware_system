@@ -38,6 +38,7 @@ import weasyprint
 from .models import ArchivedSale
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+from openpyxl import Workbook
 
 
 def login_view(request):
@@ -599,3 +600,38 @@ def download_archive_pdf(request, archive_id):
     if pisa_status.err:
         return HttpResponse('Error generating PDF')
     return response
+
+def download_archive_excel(request, archive_id):
+    archive = get_object_or_404(ArchivedSale, id=archive_id)
+    sales = json.loads(archive.breakdown)  # assuming you have a method to parse breakdown
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Archived Sales"
+
+    # Add summary info
+    ws['A1'] = 'Archived At:'
+    ws['B1'] = archive.archived_at.strftime('%B %d, %Y, %I:%M %p')
+
+    ws['A2'] = 'Gross Total:'
+    ws['B2'] = f"₱{archive.gross_total:.2f}"
+
+    ws['A3'] = 'Discounted Total:'
+    ws['B3'] = f"₱{archive.discounted_total:.2f}"
+
+    ws['A4'] = 'Net Total:'
+    ws['B4'] = f"₱{archive.net_total:.2f}"
+
+    # Headers for sales breakdown
+    ws.append([])  # empty row
+    ws.append(['Sale ID', 'Total', 'Cashier'])
+
+    for sale in sales:
+        ws.append([sale['id'], float(sale['total']), sale['cashier']])
+
+    # Serve the file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename=archive_{archive.id}.xlsx'
+    wb.save(response)
+    return response
+

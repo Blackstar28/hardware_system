@@ -21,7 +21,7 @@ urlpatterns = [
     path('admin/core/total-sales/archive/', views.archived_sales_view, name='archived_sales_view'),
     path('admin/core/archive/<int:archive_id>/pdf/', download_archive_pdf, name='download_archive_pdf'),
     path('admin/core/total-sales/archive/pdf/<int:archive_id>/', views.download_archive_pdf, name='download_archive_pdf'),
-
+    path('admin/core/total-sales/archive/excel/<int:archive_id>/', views.download_archive_excel, name='download_archive_excel'),
 
     
 ]
