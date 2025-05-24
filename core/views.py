@@ -34,6 +34,10 @@ from django.contrib.auth import authenticate, login
 import json
 from .models import Sale, ArchivedSale
 from datetime import datetime
+import weasyprint
+from .models import ArchivedSale
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 
 
 def login_view(request):
@@ -539,28 +543,59 @@ def download_sales_pdf(request):
 
 
 def archived_sales_view(request):
-    archives = ArchivedSale.objects.all().order_by('-archived_at')
-    query = request.GET.get('q')
-    date = request.GET.get('date')
+    search_query = request.GET.get("q", "").strip()
+    search_date = request.GET.get("date", "").strip()
 
-    if date:
-        try:
-            selected_date = datetime.strptime(date, '%Y-%m-%d').date()
-            archives = archives.filter(archived_at__date=selected_date)
-        except ValueError:
-            pass  # Invalid date format, ignore the filter
+    archives = ArchivedSale.objects.all().order_by("-archived_at")
 
-    results = []
+    filtered_archives = []
     for archive in archives:
-        breakdown = json.loads(archive.breakdown)
-        if query:
-            if not any(query.lower() in s['cashier'].lower() for s in breakdown):
-                continue  # Skip if cashier name doesn't match
-        archive.parsed_breakdown = breakdown
-        results.append(archive)
+        try:
+            breakdown = json.loads(archive.breakdown)
+        except json.JSONDecodeError:
+            breakdown = []
 
-    return render(request, "admin/archived_sales.html", {
-        "archives": results,
-        "search_query": query or '',
-        "search_date": date or '',
+        archive.parsed_breakdown = breakdown  # attach for display
+
+        # Apply filtering
+        matches_query = True
+        matches_date = True
+
+        if search_query:
+            matches_query = any(search_query.lower() in sale["cashier"].lower() for sale in breakdown)
+
+        if search_date:
+            matches_date = str(archive.archived_at.date()) == search_date
+
+        if matches_query and matches_date:
+            filtered_archives.append(archive)
+
+    return render(request, "admin/archived_sales_list.html", {
+        "archives": filtered_archives,
+        "search_query": search_query,
+        "search_date": search_date,
     })
+
+
+def download_archive_pdf(request, archive_id):
+    archive = get_object_or_404(ArchivedSale, pk=archive_id)
+
+    try:
+        sales = json.loads(archive.breakdown)  # Parse the breakdown field
+    except json.JSONDecodeError:
+        return HttpResponse("Invalid JSON in ArchivedSale.breakdown")
+
+    template = get_template('admin/archive_pdf.html')
+    context = {
+        'archive': archive,
+        'sales': sales,  # Pass parsed sales data to the template
+        'base_path': settings.BASE_DIR,
+    }
+
+    html = template.render(context)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="archive_{archive.id}.pdf"'
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('Error generating PDF')
+    return response

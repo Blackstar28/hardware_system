@@ -24,6 +24,12 @@
                 <li>Sale #{{ sale.id }} - ₱{{ sale.total }} - by {{ sale.cashier }}</li>
             {% endfor %}
         </ul>
+
+        <!-- Download PDF Button -->
+        <a href="{% url 'download_archive_pdf' archive.id %}" class="btn btn-success" style="margin-top: 10px;">
+            📄 Download PDF
+        </a>
+
         <hr>
     </div>
 {% empty %}

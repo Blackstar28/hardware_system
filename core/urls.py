@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from .views import DeliveryListView, mark_delivery_received, undo_delivery
+from .views import download_archive_pdf
 
 urlpatterns = [
     path('', views.home_view, name='home'),
@@ -18,5 +19,9 @@ urlpatterns = [
     path('admin/core/total-sales/', views.dashboard_view, name='dashboard_view'),
     path('admin/core/total-sales/pdf/', views.download_sales_pdf, name='download_sales_pdf'),
     path('admin/core/total-sales/archive/', views.archived_sales_view, name='archived_sales_view'),
+    path('admin/core/archive/<int:archive_id>/pdf/', download_archive_pdf, name='download_archive_pdf'),
+    path('admin/core/total-sales/archive/pdf/<int:archive_id>/', views.download_archive_pdf, name='download_archive_pdf'),
+
+
     
 ]

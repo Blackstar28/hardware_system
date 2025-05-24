@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Archived Sales Report</title>
+  <style>
+    @font-face {
+      font-family: "DejaVu Sans";
+      src: url("{{ STATIC_URL }}fonts/DejaVuSans.ttf");
+    }
+
+    body {
+      font-family: "DejaVu Sans", sans-serif;
+      padding: 20px;
+    }
+
+    h1, h2 { text-align: center; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <h1>Archived Sales Report</h1>
+  <p><strong>Archived At:</strong> {{ archive.archived_at }}</p>
+  <p><strong>Gross Total:</strong> PHP{{ archive.gross_total }}</p>
+  <p><strong>Discounted Total:</strong> PHP{{ archive.discounted_total }}</p>
+  <p><strong>Net Total:</strong> PHP{{ archive.net_total }}</p>
+
+  <h2>Sales Breakdown</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Sale ID</th>
+        <th>Total</th>
+        <th>Cashier</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sale in sales %}
+      <tr>
+        <td>{{ sale.id }}</td>
+        <td>PHP{{ sale.total }}</td>
+        <td>{{ sale.cashier }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
