@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+
+<h1>Total Sales Today</h1>
+
+<table class="table table-bordered">
+    <tr><th>Gross Total</th><td>₱{{ gross_total|floatformat:2 }}</td></tr>
+    <tr><th>Discounted Total (after 5%)</th><td>₱{{ discounted_total|floatformat:2 }}</td></tr>
+    <tr><th>Net Total (after 12% tax)</th><td>₱{{ net_total|floatformat:2 }}</td></tr>
+</table>
+
+<div style="margin-top: 20px;">
+    <a href="?reset=true" class="btn btn-danger">Reset Today's Sales</a>
+    <a href="{% url 'download_sales_pdf' %}" class="btn btn-primary">Download Sales Report PDF</a>
+    <button onclick="window.print()" class="btn btn-success">Print Page</button>
+    <a href="{% url 'archived_sales_view' %}" class="btn btn-warning">View Archived Sales</a>
+</div>
+
+<h2 style="margin-top: 30px;">Sales Breakdown</h2>
+<ul>
+    {% for sale in sales %}
+        <li>Sale #{{ sale.id }} - ₱{{ sale.total }} - by {{ sale.cashier }}</li>
+    {% empty %}
+        <li>No sales yet today.</li>
+    {% endfor %}
+</ul>
+
+<a href="/admin/" class="btn btn-secondary" style="margin-top: 30px;">Back to Admin</a>
+{% endblock %}

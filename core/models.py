@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 # Create your models here.
@@ -19,7 +20,12 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-
+class ArchivedSale(models.Model):
+    archived_at = models.DateTimeField(default=timezone.now)
+    gross_total = models.DecimalField(max_digits=10, decimal_places=2)
+    discounted_total = models.DecimalField(max_digits=10, decimal_places=2)
+    net_total = models.DecimalField(max_digits=10, decimal_places=2)
+    breakdown = models.TextField()  # JSON string
 
 class Sale(models.Model):
     cashier = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)

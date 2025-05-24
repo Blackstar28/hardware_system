@@ -15,5 +15,8 @@ urlpatterns = [
     path('deliveries/undo/<int:pk>/', undo_delivery, name='undo_delivery'),
     path('deliveries/<int:pk>/toggle/', views.toggle_delivery_status, name='mark_as_delivered'),
     path('test-telegram/', views.test_telegram, name='test_telegram'),
+    path('admin/core/total-sales/', views.dashboard_view, name='dashboard_view'),
+    path('admin/core/total-sales/pdf/', views.download_sales_pdf, name='download_sales_pdf'),
+    path('admin/core/total-sales/archive/', views.archived_sales_view, name='archived_sales_view'),
     
 ]

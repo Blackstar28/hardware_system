@@ -31,6 +31,10 @@ from django.views.decorators.http import require_GET
 from decimal import Decimal
 from django.utils import timezone
 from django.contrib.auth import authenticate, login
+import json
+from .models import Sale, ArchivedSale
+from datetime import datetime
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -429,3 +433,78 @@ def get_product_price(request):
         return JsonResponse({'price': product.price})
     except Product.DoesNotExist:
         return JsonResponse({'error': 'Product not found'}, status=404)
+
+
+def dashboard_view(request):
+    sales = Sale.objects.all()
+    gross_total = sum(s.total for s in sales)
+    discounted_total = gross_total * 0.95
+    net_total = discounted_total * 1.12
+
+    if request.GET.get("reset") == "true":
+        breakdown = [
+            {"id": s.id, "total": float(s.total), "cashier": s.cashier.username}
+            for s in sales
+        ]
+        ArchivedSale.objects.create(
+            gross_total=gross_total,
+            discounted_total=discounted_total,
+            net_total=net_total,
+            breakdown=json.dumps(breakdown)
+        )
+        sales.delete()
+        return redirect(request.path)
+
+    return render(request, "admin/dashboard.html", {
+        "gross_total": gross_total,
+        "discounted_total": discounted_total,
+        "net_total": net_total,
+        "sales": sales,
+    })
+
+def download_sales_pdf(request):
+    sales = Sale.objects.all()
+    gross_total = sum(s.total for s in sales)
+    discounted_total = gross_total * 0.95
+    net_total = discounted_total * 1.12
+
+    html_string = render_to_string('admin/sales_pdf.html', {
+        'gross_total': gross_total,
+        'discounted_total': discounted_total,
+        'net_total': net_total,
+        'sales': sales
+    })
+
+    html = HTML(string=html_string)
+    pdf_file = html.write_pdf()
+
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="today_sales.pdf"'
+    return response
+
+def archived_sales_view(request):
+    archives = ArchivedSale.objects.all().order_by('-archived_at')
+    query = request.GET.get('q')
+    date = request.GET.get('date')
+
+    if date:
+        try:
+            selected_date = datetime.strptime(date, '%Y-%m-%d').date()
+            archives = archives.filter(archived_at__date=selected_date)
+        except ValueError:
+            pass  # Invalid date format, ignore the filter
+
+    results = []
+    for archive in archives:
+        breakdown = json.loads(archive.breakdown)
+        if query:
+            if not any(query.lower() in s['cashier'].lower() for s in breakdown):
+                continue  # Skip if cashier name doesn't match
+        archive.parsed_breakdown = breakdown
+        results.append(archive)
+
+    return render(request, "admin/archived_sales.html", {
+        "archives": results,
+        "search_query": query or '',
+        "search_date": date or '',
+    })

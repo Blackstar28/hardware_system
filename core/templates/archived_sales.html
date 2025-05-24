@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+
+<h1>Archived Sales</h1>
+
+<form method="get" class="form-inline" style="margin-bottom: 20px;">
+    <input type="text" name="q" placeholder="Search by cashier" value="{{ search_query }}" class="form-control" />
+    <input type="date" name="date" value="{{ search_date }}" class="form-control" style="margin-left: 10px;" />
+    <button type="submit" class="btn btn-primary" style="margin-left: 10px;">Search</button>
+    <a href="{% url 'archived_sales_view' %}" class="btn btn-secondary" style="margin-left: 10px;">Clear</a>
+</form>
+
+{% for archive in archives %}
+    <div style="margin-bottom: 40px;">
+        <h3>Archived At: {{ archive.archived_at }}</h3>
+        <ul>
+            <li><strong>Gross Total:</strong> ₱{{ archive.gross_total|floatformat:2 }}</li>
+            <li><strong>Discounted Total:</strong> ₱{{ archive.discounted_total|floatformat:2 }}</li>
+            <li><strong>Net Total:</strong> ₱{{ archive.net_total|floatformat:2 }}</li>
+        </ul>
+        <h4>Sales Breakdown</h4>
+        <ul>
+            {% for sale in archive.parsed_breakdown %}
+                <li>Sale #{{ sale.id }} - ₱{{ sale.total }} - by {{ sale.cashier }}</li>
+            {% endfor %}
+        </ul>
+        <hr>
+    </div>
+{% empty %}
+    <p>No archived sales found.</p>
+{% endfor %}
+
+<a href="{% url 'dashboard_view' %}" class="btn btn-secondary">Back to Dashboard</a>
+{% endblock %}
